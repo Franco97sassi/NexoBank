@@ -1,0 +1,8 @@
+CREATE TABLE system_health (
+    id BIGSERIAL PRIMARY KEY,
+    status VARCHAR(50) NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+INSERT INTO system_health (status)
+VALUES ('OK');
