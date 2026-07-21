@@ -1,4 +1,8 @@
 package com.nexobank.backend.domain.transfer;
 
-public class TransferStatus {
-}
+public enum TransferStatus {
+    PENDING,
+    COMPLETED,
+    REJECTED,
+    FAILED,
+    CANCELLED}

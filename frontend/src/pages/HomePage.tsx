@@ -24,8 +24,8 @@ export function HomePage() {
 
       <Card>
         <CardContent>
-          <Stack alignItems="flex-start" spacing={2}>
-            <Typography component="h3" variant="h6">
+          <Stack spacing={2} sx={{ alignItems: 'flex-start' }}>
+                        <Typography component="h3" variant="h6">
               Estado de la API
             </Typography>
             {healthQuery.isSuccess && (
