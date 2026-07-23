@@ -1,4 +1,6 @@
 package com.nexobank.backend.auth.dto;
+ 
 
-public class LogoutRequest {
-}
+import jakarta.validation.constraints.NotBlank;
+
+public record LogoutRequest(@NotBlank String refreshToken) {    }
