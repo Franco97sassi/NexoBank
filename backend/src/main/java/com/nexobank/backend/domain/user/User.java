@@ -49,7 +49,17 @@ public class User extends BaseEntity {
     public boolean isEnabled() {
         return enabled;
     }
+    public void updateEmail(String email) {
+        this.email = email;
+    }
 
+    public void updatePassword(String passwordHash) {
+        this.passwordHash = passwordHash;
+    }
+
+    public void updateRole(Role role) {
+        this.role = role;
+    }
     public void disable() {
         this.enabled = false;
     }

@@ -1,9 +1,41 @@
-import { Container } from '@mui/material';
-import { Outlet } from 'react-router-dom';
+import { AccountBalance, ManageAccounts } from '@mui/icons-material';
+import { AppBar, Box, Button, Container, Toolbar, Typography } from '@mui/material';
+import { Link, Outlet } from 'react-router-dom';
+
+import { useAuth } from '../../features/auth/AuthContext';
 export function AppLayout() {
+  const { isAuthenticated, user } = useAuth();
+
   return (
-    <Container component="main" maxWidth="md" sx={{ py: 4 }}>
-            <Outlet />
-    </Container>
+    <Box>
+      {isAuthenticated && (
+        <AppBar elevation={0} position="static">
+          <Toolbar>
+            <AccountBalance sx={{ mr: 1 }} />
+            <Typography
+              component={Link}
+              sx={{ color: 'inherit', flexGrow: 1, textDecoration: 'none' }}
+              to="/"
+              variant="h6"
+            >
+              NexoBank
+            </Typography>
+            {user?.role === 'ADMIN' && (
+              <Button
+                color="inherit"
+                component={Link}
+                startIcon={<ManageAccounts />}
+                to="/users"
+              >
+                Usuarios
+              </Button>
+            )}
+          </Toolbar>
+        </AppBar>
+      )}
+      <Container component="main" maxWidth="lg" sx={{ py: 4 }}>
+        <Outlet />
+      </Container>
+    </Box>
   );
 }

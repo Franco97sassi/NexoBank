@@ -1,7 +1,9 @@
 package com.nexobank.backend.common.error;
 import com.nexobank.backend.auth.service.AuthenticationException;
 import com.nexobank.backend.common.exception.ResourceNotFoundException;
+import com.nexobank.backend.domain.user.UserConflictException;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -51,6 +53,31 @@ public class GlobalExceptionHandler {
                 )
         );
     }
+
+    @ExceptionHandler(UserConflictException.class)
+    public ResponseEntity<ApiErrorResponse> handleUserConflict(
+            UserConflictException exception,
+            HttpServletRequest request
+    ) {
+        HttpStatus status = HttpStatus.CONFLICT;
+        return ResponseEntity.status(status).body(ApiErrorResponse.of(
+                status.value(), status.getReasonPhrase(), exception.getMessage(), request.getRequestURI()
+        ));
+    }
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ApiErrorResponse> handleDataIntegrity(
+            DataIntegrityViolationException exception,
+            HttpServletRequest request
+    ) {
+        HttpStatus status = HttpStatus.CONFLICT;
+        return ResponseEntity.status(status).body(ApiErrorResponse.of(
+                status.value(),
+                status.getReasonPhrase(),
+                "The operation conflicts with existing data",
+                request.getRequestURI()
+        ));
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiErrorResponse> handleValidation(
             MethodArgumentNotValidException exception,
