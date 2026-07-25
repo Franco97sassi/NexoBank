@@ -96,4 +96,9 @@ public class Account extends BaseEntity {
     public Long getVersion() {
         return version;
     }
+
+    public void update(String alias, AccountStatus status) {
+        this.alias = alias;
+        this.status = status;
+    }
 }

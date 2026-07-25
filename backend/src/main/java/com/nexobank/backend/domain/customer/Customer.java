@@ -76,4 +76,13 @@ public class Customer extends BaseEntity {
     public String getPhone() {
         return phone;
     }
+    public void update(User user, String firstName, String lastName, String documentNumber,
+                       LocalDate birthDate, String phone) {
+        this.user = user;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.documentNumber = documentNumber;
+        this.birthDate = birthDate;
+        this.phone = phone;
+    }
 }

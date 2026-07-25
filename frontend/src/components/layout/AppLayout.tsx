@@ -1,4 +1,4 @@
-import { AccountBalance, ManageAccounts } from '@mui/icons-material';
+import { AccountBalance, AccountBalanceWallet, ManageAccounts, People } from '@mui/icons-material';
 import { AppBar, Box, Button, Container, Toolbar, Typography } from '@mui/material';
 import { Link, Outlet } from 'react-router-dom';
 
@@ -37,6 +37,9 @@ export function AppLayout() {
                   to="/customers"
                 >
                   Clientes
+                </Button>
+                <Button color="inherit" component={Link} startIcon={<AccountBalanceWallet />} to="/accounts">
+                  Cuentas
                 </Button>
               </>
             )}
