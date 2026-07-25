@@ -21,14 +21,24 @@ export function AppLayout() {
               NexoBank
             </Typography>
             {user?.role === 'ADMIN' && (
-              <Button
-                color="inherit"
-                component={Link}
-                startIcon={<ManageAccounts />}
-                to="/users"
-              >
-                Usuarios
-              </Button>
+               <>
+                <Button
+                  color="inherit"
+                  component={Link}
+                  startIcon={<ManageAccounts />}
+                  to="/users"
+                >
+                  Usuarios
+                </Button>
+                <Button
+                  color="inherit"
+                  component={Link}
+                  startIcon={<People />}
+                  to="/customers"
+                >
+                  Clientes
+                </Button>
+              </>
             )}
           </Toolbar>
         </AppBar>
