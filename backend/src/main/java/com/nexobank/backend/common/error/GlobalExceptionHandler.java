@@ -4,6 +4,7 @@ import com.nexobank.backend.common.exception.ResourceNotFoundException;
 import com.nexobank.backend.domain.user.UserConflictException;
 import com.nexobank.backend.domain.account.AccountConflictException;
 import com.nexobank.backend.domain.customer.CustomerConflictException;
+import com.nexobank.backend.domain.transaction.TransactionConflictException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.slf4j.Logger;
@@ -56,7 +57,8 @@ public class GlobalExceptionHandler {
         );
     }
 
-    @ExceptionHandler({UserConflictException.class, CustomerConflictException.class, AccountConflictException.class})
+    @ExceptionHandler({UserConflictException.class, CustomerConflictException.class, AccountConflictException.class,
+            TransactionConflictException.class})
     public ResponseEntity<ApiErrorResponse> handleConflict(
             RuntimeException exception,
             HttpServletRequest request
