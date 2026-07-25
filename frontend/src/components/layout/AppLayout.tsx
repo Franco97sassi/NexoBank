@@ -1,4 +1,4 @@
-import { AccountBalance, AccountBalanceWallet, ManageAccounts, People, ReceiptLong } from '@mui/icons-material';
+import { AccountBalance, AccountBalanceWallet, ManageAccounts, People, ReceiptLong, PersonAddAlt } from '@mui/icons-material';
 import { AppBar, Box, Button, Container, Toolbar, Typography } from '@mui/material';
 import { Link, Outlet } from 'react-router-dom';
 
@@ -43,6 +43,9 @@ export function AppLayout() {
                 </Button>
                 <Button color="inherit" component={Link} startIcon={<ReceiptLong />} to="/transactions">
                   Movimientos
+                </Button>
+                <Button color="inherit" component={Link} startIcon={<PersonAddAlt />} to="/beneficiaries">
+                  Destinatarios
                 </Button>
               </>
             )}

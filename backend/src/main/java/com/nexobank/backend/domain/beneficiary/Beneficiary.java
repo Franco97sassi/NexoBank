@@ -87,4 +87,16 @@ public String getBankName() {
 public boolean isActive() {
     return active;
 }
+
+public void update(Account destinationAccount, String displayName, String cbu, String alias, String bankName) {
+    this.destinationAccount = destinationAccount;
+    this.displayName = displayName;
+    this.cbu = cbu;
+    this.alias = alias;
+    this.bankName = bankName;
+}
+
+public void deactivate() {
+    this.active = false;
+}
 }

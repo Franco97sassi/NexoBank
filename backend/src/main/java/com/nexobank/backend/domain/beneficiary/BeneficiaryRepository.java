@@ -1,12 +1,13 @@
 package com.nexobank.backend.domain.beneficiary;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface BeneficiaryRepository extends JpaRepository<Beneficiary, UUID> {
+public interface BeneficiaryRepository extends JpaRepository<Beneficiary, UUID>, JpaSpecificationExecutor<Beneficiary> {
 
     List<Beneficiary> findAllByCustomerId(UUID customerId);
 
