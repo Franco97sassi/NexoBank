@@ -101,4 +101,8 @@ public class Account extends BaseEntity {
         this.alias = alias;
         this.status = status;
     }
+
+    public void changeBalance(BigDecimal newBalance) {
+        this.balance = newBalance;
+    }
 }

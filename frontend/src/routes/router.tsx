@@ -10,8 +10,7 @@ import { RegisterPage } from '../pages/RegisterPage';
 import { UsersPage } from '../pages/UsersPage';
 import { CustomersPage } from '../pages/CustomersPage';
 import { AccountsPage } from '../pages/AccountsPage';
-import { CustomersPage } from '../pages/CustomersPage';
-import { AccountsPage } from '../pages/AccountsPage';
+import { TransactionsPage } from '../pages/TransactionsPage';
 export const router = createBrowserRouter([
   {
     path: '/',
@@ -41,8 +40,7 @@ export const router = createBrowserRouter([
               },
               { path: 'customers', element: <CustomersPage /> },
               { path: 'accounts', element: <AccountsPage /> },
-                { path: 'customers', element: <CustomersPage /> },
-              { path: 'accounts', element: <AccountsPage /> },
+              { path: 'transactions', element: <TransactionsPage /> },
             ],
           },
         ],
