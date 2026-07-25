@@ -1,8 +1,20 @@
-import { createContext, useCallback, useContext, useMemo, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
-
-import { clearAuthSession, getAccessToken, getRefreshToken, getStoredUser, saveAuthSession } from './authStorage';
-import { login as loginRequest, logout as logoutRequest, register as registerRequest } from './authApi';
+ import {
+  AUTH_SESSION_CHANGED_EVENT,
+  clearAuthSession,
+  getAccessToken,
+  getRefreshToken,
+  getSessionExpiresAt,
+  getStoredUser,
+  saveAuthSession,
+} from './authStorage';
+import {
+  login as loginRequest,
+  logout as logoutRequest,
+  refreshSession,
+  register as registerRequest,
+} from './authApi';
 import type { AuthResponse, AuthUser, LoginRequest, RegisterRequest } from './authTypes';
 
 type AuthContextValue = {
@@ -19,6 +31,41 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(() => getStoredUser());
   const [accessToken, setAccessToken] = useState<string | null>(() => getAccessToken());
+useEffect(() => {
+    const synchronizeSession = () => {
+      setUser(getStoredUser());
+      setAccessToken(getAccessToken());
+    };
+    window.addEventListener(AUTH_SESSION_CHANGED_EVENT, synchronizeSession);
+    window.addEventListener('storage', synchronizeSession);
+    return () => {
+      window.removeEventListener(AUTH_SESSION_CHANGED_EVENT, synchronizeSession);
+      window.removeEventListener('storage', synchronizeSession);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!accessToken) return;
+    const expiresAt = getSessionExpiresAt();
+    if (!expiresAt) return;
+    const refreshOrLogout = async () => {
+      const refreshToken = getRefreshToken();
+      if (!refreshToken) {
+        clearAuthSession();
+        return;
+      }
+      try {
+        saveAuthSession(await refreshSession(refreshToken));
+      } catch {
+        clearAuthSession();
+      }
+    };
+    const timeout = window.setTimeout(
+      () => void refreshOrLogout(),
+      Math.max(0, expiresAt - Date.now() - 30_000),
+    );
+    return () => window.clearTimeout(timeout);
+  }, [accessToken]);
 
   const persistSession = useCallback((auth: AuthResponse) => {
     saveAuthSession(auth);

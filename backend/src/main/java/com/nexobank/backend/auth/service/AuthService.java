@@ -8,6 +8,8 @@ import com.nexobank.backend.auth.security.JwtService;
 import com.nexobank.backend.domain.user.Role;
 import com.nexobank.backend.domain.user.User;
 import com.nexobank.backend.domain.user.UserRepository;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,7 +21,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final RefreshTokenService refreshTokenService;
-
+    private final AuthenticationManager authenticationManager;
     public AuthService(
             UserRepository userRepository,
             PasswordEncoder passwordEncoder,
@@ -30,6 +32,7 @@ public class AuthService {
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
         this.refreshTokenService = refreshTokenService;
+        this.authenticationManager = authenticationManager;
     }
 
     @Transactional
@@ -49,11 +52,16 @@ public class AuthService {
 
     @Transactional
     public AuthResponse login(LoginRequest request) {
-        User user = userRepository.findByEmailIgnoreCase(request.email().trim())
-                .orElseThrow(() -> new AuthenticationException("Invalid email or password"));
-        if (!user.isEnabled() || !passwordEncoder.matches(request.password(), user.getPasswordHash())) {
+        String email = request.email().trim().toLowerCase();
+        try {
+            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, request.password()));
+        } catch (org.springframework.security.core.AuthenticationException exception) {
             throw new AuthenticationException("Invalid email or password");
         }
+        User user = userRepository.findByEmailIgnoreCase(email)
+                .orElseThrow(() -> new AuthenticationException(
+                        "Invalid email or password"
+                ));
         return buildAuthResponse(user);
     }
 
