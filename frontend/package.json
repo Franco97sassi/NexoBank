@@ -12,10 +12,10 @@
     "format:write": "prettier --write ."
   },
   "dependencies": {
-    "@emotion/react": "latest",
-    "@emotion/styled": "latest",
-    "@mui/icons-material": "latest",
-    "@mui/material": "latest",
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@mui/icons-material": "^7.3.11",
+    "@mui/material": "^7.3.11",
     "@tanstack/react-query": "latest",
     "axios": "latest",
     "react": "latest",
