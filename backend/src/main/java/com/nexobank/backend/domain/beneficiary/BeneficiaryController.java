@@ -1,5 +1,7 @@
 package com.nexobank.backend.domain.beneficiary;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+
 import com.nexobank.backend.domain.beneficiary.dto.*;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
@@ -10,6 +12,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
+@SecurityRequirement(name = "bearerAuth")
 @RestController
 @RequestMapping("/api/v1/beneficiaries")
 @PreAuthorize("hasRole('ADMIN')")

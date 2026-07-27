@@ -1,5 +1,7 @@
 package com.nexobank.backend.domain.customer;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+
 import com.nexobank.backend.domain.customer.dto.CustomerPageResponse;
 import com.nexobank.backend.domain.customer.dto.CustomerRequest;
 import com.nexobank.backend.domain.customer.dto.CustomerResponse;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
+@SecurityRequirement(name = "bearerAuth")
 @RestController
 @RequestMapping("/api/v1/customers")
 @PreAuthorize("hasRole('ADMIN')")

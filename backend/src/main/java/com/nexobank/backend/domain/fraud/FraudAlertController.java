@@ -1,4 +1,6 @@
 package com.nexobank.backend.domain.fraud;
+
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import com.nexobank.backend.auth.security.JwtPrincipal;
 import com.nexobank.backend.domain.fraud.dto.*;
 import jakarta.validation.Valid;
@@ -8,6 +10,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
+@SecurityRequirement(name = "bearerAuth")
 @RestController @RequestMapping("/api/v1/fraud-alerts") @PreAuthorize("hasRole('ADMIN')") @Validated
 public class FraudAlertController {
  private final FraudAlertService service; public FraudAlertController(FraudAlertService service){this.service=service;}
