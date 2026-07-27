@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Add, FilterAlt } from '@mui/icons-material';
+import { Add, Download, FilterAlt } from '@mui/icons-material';
 import {
   Alert,
   Box,
@@ -105,6 +105,31 @@ export function TransactionsPage() {
       {label}
     </TableSortLabel>
   );
+  const exportCsv = () => {
+    const rows = movements.data?.content ?? [];
+    const escape = (value: string | number) => `"${String(value).replaceAll('"', '""')}"`;
+    const csv = [
+      ['Fecha', 'Cuenta', 'Tipo', 'Descripción', 'Importe', 'Saldo posterior'],
+      ...rows.map((movement) => [
+        movement.createdAt,
+        movement.accountAlias,
+        labels[movement.type],
+        movement.description,
+        movement.amount,
+        movement.balanceAfter,
+      ]),
+    ]
+      .map((row) => row.map(escape).join(','))
+      .join('\n');
+    const url = URL.createObjectURL(
+      new Blob([`\uFEFF${csv}`], { type: 'text/csv;charset=utf-8' }),
+    );
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = `movimientos-${new Date().toISOString().slice(0, 10)}.csv`;
+    anchor.click();
+    URL.revokeObjectURL(url);
+  };
   return (
     <Stack spacing={3}>
       <Box>
@@ -171,6 +196,14 @@ export function TransactionsPage() {
             variant="outlined"
           >
             Filtrar
+          </Button>
+          <Button
+            disabled={!movements.data?.content.length}
+            onClick={exportCsv}
+            startIcon={<Download />}
+            variant="outlined"
+          >
+            Exportar
           </Button>
           <Button
             onClick={() => {

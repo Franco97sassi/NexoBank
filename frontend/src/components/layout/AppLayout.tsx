@@ -1,11 +1,8 @@
 import {
   AccountBalance,
-  AccountBalanceWallet,
   ManageAccounts,
   People,
-  ReceiptLong,
   PersonAddAlt,
-  SwapHoriz,
   FactCheck,
   Policy,
 } from '@mui/icons-material';
@@ -30,6 +27,15 @@ export function AppLayout() {
             >
               NexoBank
             </Typography>
+            <Button color="inherit" component={Link} to="/accounts">
+              Cuentas
+            </Button>
+            <Button color="inherit" component={Link} to="/transactions">
+              Movimientos
+            </Button>
+            <Button color="inherit" component={Link} to="/transfers">
+              Transferencias
+            </Button>
             {user?.role === 'ADMIN' && (
               <>
                 <Button
@@ -51,34 +57,10 @@ export function AppLayout() {
                 <Button
                   color="inherit"
                   component={Link}
-                  startIcon={<AccountBalanceWallet />}
-                  to="/accounts"
-                >
-                  Cuentas
-                </Button>
-                <Button
-                  color="inherit"
-                  component={Link}
-                  startIcon={<ReceiptLong />}
-                  to="/transactions"
-                >
-                  Movimientos
-                </Button>
-                <Button
-                  color="inherit"
-                  component={Link}
                   startIcon={<PersonAddAlt />}
                   to="/beneficiaries"
                 >
                   Destinatarios
-                </Button>
-                <Button
-                  color="inherit"
-                  component={Link}
-                  startIcon={<SwapHoriz />}
-                  to="/transfers"
-                >
-                  Transferencias
                 </Button>
                 <Button
                   color="inherit"

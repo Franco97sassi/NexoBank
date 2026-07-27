@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Add, EditOutlined, Search } from '@mui/icons-material';
+import { Add, EditOutlined, Search, VisibilityOutlined } from '@mui/icons-material';
 import {
   Alert,
   Box,
@@ -7,6 +7,10 @@ import {
   IconButton,
   Paper,
   Snackbar,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   Stack,
   Table,
   TableBody,
@@ -57,6 +61,7 @@ export function AccountsPage() {
   const [search, setSearch] = useState('');
   const [editing, setEditing] = useState<Account | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [detail, setDetail] = useState<Account | null>(null);
   const [message, setMessage] = useState('');
   const accounts = useQuery({
     queryKey: ['accounts', query],
@@ -176,6 +181,11 @@ export function AccountsPage() {
                 </TableCell>
                 <TableCell>{statusLabel[account.status]}</TableCell>
                 <TableCell align="right">
+                  <Tooltip title="Ver detalle">
+                    <IconButton onClick={() => setDetail(account)}>
+                      <VisibilityOutlined />
+                    </IconButton>
+                  </Tooltip>
                   <Tooltip title="Editar">
                     <IconButton
                       onClick={() => {
@@ -218,6 +228,47 @@ export function AccountsPage() {
         onSubmit={(data) => save.mutate(data)}
         open={dialogOpen}
       />
+      <Dialog
+        fullWidth
+        maxWidth="sm"
+        onClose={() => setDetail(null)}
+        open={Boolean(detail)}
+      >
+        <DialogTitle>Detalle de cuenta</DialogTitle>
+        <DialogContent dividers>
+          {detail && (
+            <Stack spacing={1.5}>
+              <Typography>
+                <strong>Titular:</strong> {detail.customerName}
+              </Typography>
+              <Typography>
+                <strong>Documento:</strong> {detail.customerDocument}
+              </Typography>
+              <Typography>
+                <strong>CBU:</strong> {detail.cbu}
+              </Typography>
+              <Typography>
+                <strong>Alias:</strong> {detail.alias}
+              </Typography>
+              <Typography>
+                <strong>Tipo:</strong> {accountTypeLabel[detail.accountType]}
+              </Typography>
+              <Typography>
+                <strong>Estado:</strong> {statusLabel[detail.status]}
+              </Typography>
+              <Typography variant="h5">
+                {new Intl.NumberFormat('es-AR', {
+                  style: 'currency',
+                  currency: detail.currency,
+                }).format(detail.balance)}
+              </Typography>
+            </Stack>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDetail(null)}>Cerrar</Button>
+        </DialogActions>
+      </Dialog>
       <Snackbar
         autoHideDuration={3500}
         message={message}
