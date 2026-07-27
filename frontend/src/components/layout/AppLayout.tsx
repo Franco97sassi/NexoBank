@@ -7,6 +7,7 @@ import {
   PersonAddAlt,
   SwapHoriz,
   FactCheck,
+  Policy,
 } from '@mui/icons-material';
 import { AppBar, Box, Button, Container, Toolbar, Typography } from '@mui/material';
 import { Link, Outlet } from 'react-router-dom';
@@ -86,6 +87,14 @@ export function AppLayout() {
                   to="/audit"
                 >
                   Auditoría
+                </Button>
+                <Button
+                  color="inherit"
+                  component={Link}
+                  startIcon={<Policy />}
+                  to="/fraud-alerts"
+                >
+                  Fraude
                 </Button>
               </>
             )}

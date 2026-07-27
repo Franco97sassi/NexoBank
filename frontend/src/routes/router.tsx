@@ -14,6 +14,7 @@ import { TransactionsPage } from '../pages/TransactionsPage';
 import { BeneficiariesPage } from '../pages/BeneficiariesPage';
 import { TransfersPage } from '../pages/TransfersPage';
 import { AuditPage } from '../pages/AuditPage';
+import { FraudAlertsPage } from '../pages/FraudAlertsPage';
 export const router = createBrowserRouter([
   {
     path: '/',
@@ -47,6 +48,7 @@ export const router = createBrowserRouter([
               { path: 'beneficiaries', element: <BeneficiariesPage /> },
               { path: 'transfers', element: <TransfersPage /> },
               { path: 'audit', element: <AuditPage /> },
+              { path: 'fraud-alerts', element: <FraudAlertsPage /> },
             ],
           },
         ],

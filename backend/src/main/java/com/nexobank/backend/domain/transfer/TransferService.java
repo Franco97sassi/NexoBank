@@ -9,6 +9,7 @@ import com.nexobank.backend.domain.beneficiary.BeneficiaryRepository;
 import com.nexobank.backend.domain.ledger.LedgerEntry;
 import com.nexobank.backend.domain.ledger.LedgerEntryRepository;
 import com.nexobank.backend.domain.ledger.LedgerEntryType;
+import com.nexobank.backend.domain.fraud.FraudAlertService;
 import com.nexobank.backend.domain.transaction.Transaction;
 import com.nexobank.backend.domain.transaction.TransactionRepository;
 import com.nexobank.backend.domain.transaction.TransactionType;
@@ -33,15 +34,17 @@ public class TransferService {
     private final BeneficiaryRepository beneficiaries;
     private final TransactionRepository transactions;
     private final LedgerEntryRepository ledger;
+    private final FraudAlertService fraudAlerts;
 
     public TransferService(TransferRepository transfers, AccountRepository accounts,
                            BeneficiaryRepository beneficiaries, TransactionRepository transactions,
-                           LedgerEntryRepository ledger) {
+                           LedgerEntryRepository ledger, FraudAlertService fraudAlerts) {
         this.transfers = transfers;
         this.accounts = accounts;
         this.beneficiaries = beneficiaries;
         this.transactions = transactions;
         this.ledger = ledger;
+        this.fraudAlerts = fraudAlerts;
     }
 
     @Transactional(readOnly = true)
@@ -100,6 +103,7 @@ public class TransferService {
                     destination.getCurrency(), destinationBalance, description));
         }
         transfer.complete(Instant.now());
+        fraudAlerts.evaluate(transfer);
         return TransferResponse.from(transfer);
     }
 
