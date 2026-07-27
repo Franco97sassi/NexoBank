@@ -13,6 +13,7 @@ import { AccountsPage } from '../pages/AccountsPage';
 import { TransactionsPage } from '../pages/TransactionsPage';
 import { BeneficiariesPage } from '../pages/BeneficiariesPage';
 import { TransfersPage } from '../pages/TransfersPage';
+import { AuditPage } from '../pages/AuditPage';
 export const router = createBrowserRouter([
   {
     path: '/',
@@ -45,6 +46,7 @@ export const router = createBrowserRouter([
               { path: 'transactions', element: <TransactionsPage /> },
               { path: 'beneficiaries', element: <BeneficiariesPage /> },
               { path: 'transfers', element: <TransfersPage /> },
+              { path: 'audit', element: <AuditPage /> },
             ],
           },
         ],

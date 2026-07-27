@@ -6,6 +6,7 @@ import {
   ReceiptLong,
   PersonAddAlt,
   SwapHoriz,
+  FactCheck,
 } from '@mui/icons-material';
 import { AppBar, Box, Button, Container, Toolbar, Typography } from '@mui/material';
 import { Link, Outlet } from 'react-router-dom';
@@ -77,6 +78,14 @@ export function AppLayout() {
                   to="/transfers"
                 >
                   Transferencias
+                </Button>
+                <Button
+                  color="inherit"
+                  component={Link}
+                  startIcon={<FactCheck />}
+                  to="/audit"
+                >
+                  Auditoría
                 </Button>
               </>
             )}
