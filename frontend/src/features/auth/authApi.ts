@@ -12,7 +12,9 @@ export async function register(request: RegisterRequest): Promise<AuthResponse> 
 }
 
 export async function refreshSession(refreshToken: string): Promise<AuthResponse> {
-  const response = await httpClient.post<AuthResponse>('/api/v1/auth/refresh', { refreshToken });
+  const response = await httpClient.post<AuthResponse>('/api/v1/auth/refresh', {
+    refreshToken,
+  });
   return response.data;
 }
 

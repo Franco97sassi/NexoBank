@@ -1,8 +1,17 @@
 import { FormEvent, useState } from 'react';
-import { Alert, Box, Button, Card, CardContent, Stack, TextField, Typography } from '@mui/material';
+import {
+  Alert,
+  Box,
+  Button,
+  Card,
+  CardContent,
+  Stack,
+  TextField,
+  Typography,
+} from '@mui/material';
 import { Link, useNavigate } from 'react-router-dom';
 
-import { useAuth } from '../features/auth/AuthContext';
+import { useAuth } from '../features/auth/useAuth';
 
 export function RegisterPage() {
   const { register } = useAuth();

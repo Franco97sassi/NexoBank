@@ -1,6 +1,6 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { createContext, useCallback, useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
- import {
+import {
   AUTH_SESSION_CHANGED_EVENT,
   clearAuthSession,
   getAccessToken,
@@ -17,7 +17,7 @@ import {
 } from './authApi';
 import type { AuthResponse, AuthUser, LoginRequest, RegisterRequest } from './authTypes';
 
-type AuthContextValue = {
+export type AuthContextValue = {
   user: AuthUser | null;
   accessToken: string | null;
   isAuthenticated: boolean;
@@ -26,12 +26,12 @@ type AuthContextValue = {
   logout: () => Promise<void>;
 };
 
-const AuthContext = createContext<AuthContextValue | undefined>(undefined);
+export const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(() => getStoredUser());
   const [accessToken, setAccessToken] = useState<string | null>(() => getAccessToken());
-useEffect(() => {
+  useEffect(() => {
     const synchronizeSession = () => {
       setUser(getStoredUser());
       setAccessToken(getAccessToken());
@@ -73,13 +73,19 @@ useEffect(() => {
     setAccessToken(auth.accessToken);
   }, []);
 
-  const login = useCallback(async (request: LoginRequest) => {
-    persistSession(await loginRequest(request));
-  }, [persistSession]);
+  const login = useCallback(
+    async (request: LoginRequest) => {
+      persistSession(await loginRequest(request));
+    },
+    [persistSession],
+  );
 
-  const register = useCallback(async (request: RegisterRequest) => {
-    persistSession(await registerRequest(request));
-  }, [persistSession]);
+  const register = useCallback(
+    async (request: RegisterRequest) => {
+      persistSession(await registerRequest(request));
+    },
+    [persistSession],
+  );
 
   const logout = useCallback(async () => {
     const refreshToken = getRefreshToken();
@@ -91,22 +97,17 @@ useEffect(() => {
     }
   }, []);
 
-  const value = useMemo<AuthContextValue>(() => ({
-    user,
-    accessToken,
-    isAuthenticated: Boolean(user && accessToken),
-    login,
-    register,
-    logout,
-  }), [accessToken, login, logout, register, user]);
+  const value = useMemo<AuthContextValue>(
+    () => ({
+      user,
+      accessToken,
+      isAuthenticated: Boolean(user && accessToken),
+      login,
+      register,
+      logout,
+    }),
+    [accessToken, login, logout, register, user],
+  );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-}
-
-export function useAuth() {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within AuthProvider');
-  }
-  return context;
 }

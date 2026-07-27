@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from 'react';
+import { useState, type FormEvent } from 'react';
 import {
   Button,
   Dialog,
@@ -27,18 +27,22 @@ type UserDialogProps = {
 };
 
 export function UserDialog({ open, user, loading, onClose, onSubmit }: UserDialogProps) {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [role, setRole] = useState<UserRole>('CUSTOMER');
-  const [enabled, setEnabled] = useState(true);
+  if (!open) return null;
+  return (
+    <UserDialogForm user={user} loading={loading} onClose={onClose} onSubmit={onSubmit} />
+  );
+}
 
-  useEffect(() => {
-    if (!open) return;
-    setEmail(user?.email ?? '');
-    setPassword('');
-    setRole(user?.role ?? 'CUSTOMER');
-    setEnabled(user?.enabled ?? true);
-  }, [open, user]);
+function UserDialogForm({
+  user,
+  loading,
+  onClose,
+  onSubmit,
+}: Omit<UserDialogProps, 'open'>) {
+  const [email, setEmail] = useState(user?.email ?? '');
+  const [password, setPassword] = useState('');
+  const [role, setRole] = useState<UserRole>(user?.role ?? 'CUSTOMER');
+  const [enabled, setEnabled] = useState(user?.enabled ?? true);
 
   const submit = (event: FormEvent) => {
     event.preventDefault();
@@ -46,7 +50,7 @@ export function UserDialog({ open, user, loading, onClose, onSubmit }: UserDialo
   };
 
   return (
-    <Dialog fullWidth maxWidth="sm" onClose={loading ? undefined : onClose} open={open}>
+    <Dialog fullWidth maxWidth="sm" onClose={loading ? undefined : onClose} open>
       <form onSubmit={submit}>
         <DialogTitle>{user ? 'Editar usuario' : 'Crear usuario'}</DialogTitle>
         <DialogContent>

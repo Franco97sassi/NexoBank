@@ -1,6 +1,6 @@
 import { Alert, Box, Button, Card, CardContent, Stack, Typography } from '@mui/material';
 
-import { useAuth } from '../features/auth/AuthContext';
+import { useAuth } from '../features/auth/useAuth';
 
 export function DashboardPage() {
   const { logout, user } = useAuth();

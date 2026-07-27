@@ -17,15 +17,15 @@ export function HomePage() {
           Plataforma bancaria NexoBank
         </Typography>
         <Typography color="text.secondary" variant="body1">
-          Base frontend preparada con React, TypeScript, Vite, TanStack Query,
-          Material UI, Axios y React Router.
+          Base frontend preparada con React, TypeScript, Vite, TanStack Query, Material
+          UI, Axios y React Router.
         </Typography>
       </Box>
 
       <Card>
         <CardContent>
           <Stack spacing={2} sx={{ alignItems: 'flex-start' }}>
-                        <Typography component="h3" variant="h6">
+            <Typography component="h3" variant="h6">
               Estado de la API
             </Typography>
             {healthQuery.isSuccess && (

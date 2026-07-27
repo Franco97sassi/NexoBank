@@ -80,7 +80,7 @@ public class BeneficiaryService {
     }
     private void ensureUnique(UUID customerId, String cbu, UUID currentId) {
         beneficiaryRepository.findByCustomerIdAndCbu(customerId, cbu)
-                .filter(item -> !item.getId().equals(currentId)).ifPresent(item -> {
+                .filter(item -> currentId == null || !currentId.equals(item.getId())).ifPresent(item -> {
                     throw new BeneficiaryConflictException("CBU is already registered for this customer");
                 });
     }
