@@ -1,5 +1,7 @@
 package com.nexobank.backend.domain.account;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+
 import com.nexobank.backend.domain.account.dto.*;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
+@SecurityRequirement(name = "bearerAuth")
 @RestController
 @RequestMapping("/api/v1/accounts")
 @PreAuthorize("hasRole('ADMIN')")

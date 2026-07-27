@@ -1,137 +1,94 @@
 # Arquitectura de NexoBank
 
-NexoBank se plantea como una plataforma bancaria full stack separada en backend, frontend e infraestructura. El objetivo de esta arquitectura es mantener responsabilidades claras, facilitar el testing y permitir una evolución gradual hacia integraciones externas, auditoría, fraude y despliegue en la nube.
+## Visión general
 
-## Vista general
+NexoBank es un monolito modular con una SPA independiente. El navegador carga React desde Nginx, la SPA consume
+la API REST de Spring Boot y el backend es el único componente con acceso directo a PostgreSQL. Esta separación
+mantiene el dominio y las reglas monetarias en el servidor sin añadir la complejidad operativa de microservicios.
 
-```text
-Usuario
-  |
-  v
-Frontend React
-  |
-  | HTTP/JSON
-  v
-Backend Spring Boot
-  |
-  | JPA/Flyway
-  v
-PostgreSQL
+```mermaid
+C4Context
+    title Contexto de NexoBank
+    Person(customer, "Cliente", "Consulta cuentas y realiza transferencias")
+    Person(operator, "Operador", "Administra y supervisa la plataforma")
+    System_Boundary(nexo, "NexoBank") {
+        Container(web, "Aplicación web", "React / TypeScript", "Interfaz responsive")
+        Container(api, "API", "Spring Boot / Java", "Seguridad y reglas de negocio")
+        ContainerDb(db, "Base de datos", "PostgreSQL", "Datos bancarios y auditoría")
+    }
+    Rel(customer, web, "Usa", "HTTPS")
+    Rel(operator, web, "Usa", "HTTPS")
+    Rel(web, api, "HTTP/JSON + JWT", "HTTPS")
+    Rel(api, db, "JPA/JDBC", "TCP")
 ```
 
-## Componentes principales
+## Componentes
 
 ### Frontend
 
-El frontend será una aplicación React con TypeScript. Sus responsabilidades serán:
-
-- Presentar pantallas para login, dashboard, cuentas, movimientos, destinatarios y transferencias.
-- Validar formularios en cliente antes de enviar datos al backend.
-- Consumir la API REST del backend mediante HTTP/JSON.
-- Gestionar estado de servidor con TanStack Query.
+- React Router define rutas públicas, protegidas y exclusivas de administración.
+- TanStack Query administra caché, carga y revalidación de estado remoto.
+- Axios centraliza la URL base, el bearer token y la renovación de sesión.
+- Material UI aporta el sistema visual y componentes accesibles.
+- Los módulos `src/features` encapsulan tipos, clientes API y diálogos por dominio.
 
 ### Backend
 
-El backend será una aplicación Spring Boot organizada por capas. Sus responsabilidades serán:
+El código se agrupa por capacidad (`auth`, `user`, `customer`, `account`, `transaction`, `beneficiary`,
+`transfer`, `audit`, `fraud` y `admin`). En cada módulo se mantienen estas responsabilidades:
 
-- Exponer una API REST para autenticación, clientes, cuentas, movimientos y transferencias.
-- Ejecutar reglas de negocio bancarias.
-- Validar requests de entrada con DTOs y Bean Validation.
-- Persistir datos en PostgreSQL usando Spring Data JPA.
-- Versionar cambios de base de datos con Flyway.
-- Registrar eventos relevantes para auditoría.
+- **Controller:** contrato HTTP, validación de entrada, autorización y códigos de respuesta.
+- **Service:** reglas de negocio, coordinación de casos de uso y límites transaccionales.
+- **Repository:** persistencia mediante Spring Data JPA.
+- **Entidad:** estado y relaciones del dominio.
+- **DTO:** contrato de entrada/salida; las entidades no se exponen por la API.
 
-### Base de datos
+Los errores atraviesan `GlobalExceptionHandler` y se convierten en una respuesta uniforme. Un interceptor captura
+IP y user-agent para que los casos sensibles registren su contexto en `audit_events`.
 
-PostgreSQL será la base de datos principal. La estructura se administrará con migraciones Flyway versionadas en el repositorio.
+### Datos
 
-Las tablas esperadas para el dominio inicial son:
+PostgreSQL es la fuente de verdad. Flyway aplica migraciones inmutables al iniciar la API y Hibernate usa
+`ddl-auto=validate`: valida el mapeo pero no modifica el esquema. Las cuentas incorporan una versión de bloqueo
+optimista y las operaciones monetarias se ejecutan dentro de transacciones. El [DER](data-model.md) documenta
+tablas, restricciones y relaciones.
 
-- `users`
-- `roles`
-- `customers`
-- `accounts`
-- `beneficiaries`
-- `transfers`
-- `ledger_entries`
-- `audit_events`
-- `fraud_alerts`
+## Seguridad
 
-## Capas del backend
+1. Spring Security valida credenciales con un hash de contraseña.
+2. El login emite un JWT de acceso corto y un refresh token persistido.
+3. La SPA guarda la sesión, adjunta el access token y usa `/auth/refresh` cuando corresponde.
+4. El backend valida firma, emisor y expiración antes de construir la identidad autenticada.
+5. Las reglas por rol se aplican en la cadena de seguridad y con `@PreAuthorize` en operaciones administrativas.
+6. CORS solo acepta los orígenes declarados en `CORS_ALLOWED_ORIGINS`.
 
-El backend debe organizarse por paquetes funcionales y capas internas.
+En producción todo el tráfico público debe usar HTTPS, los secretos se suministran desde un almacén seguro y la
+base de datos no se expone a Internet.
 
-```text
-com.nexobank.backend
-  ├── common
-  │   ├── error
-  │   ├── validation
-  │   └── config
-  ├── auth
-  │   ├── controller
-  │   ├── service
-  │   ├── dto
-  │   └── domain
-  ├── customer
-  │   ├── controller
-  │   ├── service
-  │   ├── repository
-  │   ├── dto
-  │   └── domain
-  ├── account
-  ├── beneficiary
-  ├── movement
-  ├── transfer
-  ├── ledger
-  ├── audit
-  └── fraud
-```
+## Consistencia monetaria
 
-### Controller
+- Un depósito, retiro o ajuste actualiza el saldo y crea su movimiento en una única transacción.
+- Una transferencia bloquea lógicamente el saldo mediante la versión de la cuenta, valida moneda y fondos,
+  registra movimientos de salida/entrada y asientos de ledger antes de confirmarse.
+- `idempotencyKey` es único: repetir una solicitud no debe volver a debitar la cuenta.
+- Los comprobantes se derivan de transferencias completadas y no alteran el estado.
+- Las reglas de fraude generan alertas independientes para revisión administrativa.
 
-Responsable de recibir requests HTTP, validar entradas y devolver respuestas HTTP. No debe contener reglas de negocio complejas.
+## Decisiones y límites
 
-### Service
+| Decisión | Motivo | Consecuencia |
+| --- | --- | --- |
+| Monolito modular | Entrega y transacciones simples | Se escala la API como una unidad |
+| REST síncrono | Contrato fácil de consumir y documentar | Integraciones lentas requieren una evolución asíncrona |
+| Flyway como fuente del esquema | Cambios repetibles y auditables | Toda modificación necesita una nueva migración |
+| JWT + refresh token | Access tokens sin sesión en memoria | Se debe rotar/revocar el refresh token |
+| UUID como identidad | IDs no secuenciales y portables | Índices mayores que con claves enteras |
 
-Responsable de la lógica de negocio y coordinación entre repositorios, validaciones de dominio y operaciones transaccionales.
+## Despliegue
 
-### Repository
+La imagen frontend compila la SPA y la sirve con Nginx; la imagen backend empaqueta el JAR; PostgreSQL conserva
+sus archivos en un volumen. `docker-compose.yml` conecta los tres componentes para desarrollo. En un entorno
+productivo se recomienda terminar TLS en un balanceador o ingress, mantener réplicas stateless de la API,
+utilizar PostgreSQL administrado con copias de seguridad y centralizar métricas y logs.
 
-Responsable de acceder a la base de datos mediante Spring Data JPA.
-
-### Domain
-
-Contiene entidades JPA, enums y conceptos del dominio bancario.
-
-### DTO
-
-Contiene objetos de entrada y salida para la API. Las entidades JPA no deben exponerse directamente en los controllers.
-
-## Reglas arquitectónicas
-
-- Los controllers solo deben depender de services y DTOs.
-- Los services pueden depender de repositories, domain objects y otros services cuando sea necesario.
-- Los repositories no deben depender de controllers ni services.
-- Las entidades JPA no deben devolverse directamente desde la API.
-- Las migraciones Flyway son la fuente de verdad del esquema de base de datos.
-- Las operaciones que modifiquen dinero o saldos deben ser transaccionales.
-- Las transferencias deben diseñarse para ser idempotentes.
-- Los errores de API deben responder con un formato consistente.
-- Los eventos sensibles deben registrarse para auditoría.
-
-## Configuración por entorno
-
-La aplicación usa perfiles de Spring:
-
-- `dev`: configuración local con valores por defecto para desarrollo.
-- `prod`: configuración productiva mediante variables de entorno obligatorias.
-
-La configuración común vive en `application.properties`, mientras que los valores específicos por entorno viven en `application-dev.properties` y `application-prod.properties`.
-
-## Decisiones iniciales
-
-- Se usa una API REST monolítica como primera versión para reducir complejidad.
-- Se usa PostgreSQL como base transaccional principal.
-- Se usa Flyway para mantener cambios de esquema versionados.
-- Se separan DTOs y entidades para evitar acoplar la API al modelo de persistencia.
-- Se prioriza una arquitectura por dominio para que el proyecto pueda crecer sin concentrar toda la lógica en paquetes genéricos.
+Consulte [diagramas y flujos](flows.md) para las secuencias de autenticación, transferencia y auditoría.

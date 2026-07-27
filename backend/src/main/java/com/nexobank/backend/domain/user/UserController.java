@@ -1,5 +1,7 @@
 package com.nexobank.backend.domain.user;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+
 import com.nexobank.backend.auth.dto.UserResponse;
 import com.nexobank.backend.auth.security.JwtPrincipal;
 import com.nexobank.backend.domain.user.dto.CreateUserRequest;
@@ -26,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.UUID;
 
+@SecurityRequirement(name = "bearerAuth")
 @RestController
 @RequestMapping("/api/v1/users")
 @Validated
