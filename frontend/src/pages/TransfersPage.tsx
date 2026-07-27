@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Add, Search } from '@mui/icons-material';
+import { Add, ReceiptLong, Search } from '@mui/icons-material';
 import {
   Alert,
   Box,
@@ -15,6 +15,8 @@ import {
   TableHead,
   TablePagination,
   TableRow,
+  Tooltip,
+  IconButton,
   TextField,
   Typography,
 } from '@mui/material';
@@ -23,7 +25,12 @@ import axios from 'axios';
 import { getAccounts } from '../features/accounts/accountsApi';
 import { getBeneficiaries } from '../features/beneficiaries/beneficiariesApi';
 import { TransferDialog } from '../features/transfers/TransferDialog';
-import { createTransfer, getTransfers } from '../features/transfers/transfersApi';
+import { TransferReceiptDialog } from '../features/transfers/TransferReceiptDialog';
+import {
+  createTransfer,
+  getTransferReceipt,
+  getTransfers,
+} from '../features/transfers/transfersApi';
 import type {
   CreateTransferData,
   TransferQuery,
@@ -62,6 +69,7 @@ export function TransfersPage() {
   const [accountFilter, setAccountFilter] = useState('');
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState('');
+  const [receiptTransferId, setReceiptTransferId] = useState('');
   const transfers = useQuery({
     queryKey: ['transfers', query],
     queryFn: () => getTransfers(query),
@@ -83,6 +91,11 @@ export function TransfersPage() {
         sortBy: 'displayName',
         direction: 'ASC',
       }),
+  });
+  const receipt = useQuery({
+    queryKey: ['transfer-receipt', receiptTransferId],
+    queryFn: () => getTransferReceipt(receiptTransferId),
+    enabled: Boolean(receiptTransferId),
   });
   const save = useMutation({
     mutationFn: (data: CreateTransferData) => createTransfer(data),
@@ -178,12 +191,13 @@ export function TransfersPage() {
               <TableCell align="right">Importe</TableCell>
               <TableCell>Estado</TableCell>
               <TableCell>Concepto</TableCell>
+              <TableCell align="center">Comprobante</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {transfers.isLoading && (
               <TableRow>
-                <TableCell colSpan={7}>Cargando transferencias…</TableCell>
+                <TableCell colSpan={8}>Cargando transferencias…</TableCell>
               </TableRow>
             )}
             {transfers.data?.content.map((transfer) => (
@@ -202,11 +216,31 @@ export function TransfersPage() {
                 </TableCell>
                 <TableCell>{labels[transfer.status]}</TableCell>
                 <TableCell>{transfer.description || '—'}</TableCell>
+                <TableCell align="center">
+                  <Tooltip
+                    title={
+                      transfer.status === 'COMPLETED'
+                        ? 'Ver comprobante'
+                        : 'Disponible al completarse'
+                    }
+                  >
+                    <span>
+                      <IconButton
+                        aria-label="Ver comprobante"
+                        disabled={transfer.status !== 'COMPLETED'}
+                        onClick={() => setReceiptTransferId(transfer.id)}
+                        size="small"
+                      >
+                        <ReceiptLong />
+                      </IconButton>
+                    </span>
+                  </Tooltip>
+                </TableCell>
               </TableRow>
             ))}
             {!transfers.isLoading && transfers.data?.content.length === 0 && (
               <TableRow>
-                <TableCell align="center" colSpan={7}>
+                <TableCell align="center" colSpan={8}>
                   No se encontraron transferencias.
                 </TableCell>
               </TableRow>
@@ -232,6 +266,12 @@ export function TransfersPage() {
         onClose={() => setOpen(false)}
         onSubmit={(data) => save.mutate(data)}
         open={open}
+      />
+      <TransferReceiptDialog
+        loading={receipt.isLoading}
+        onClose={() => setReceiptTransferId('')}
+        open={Boolean(receiptTransferId)}
+        receipt={receipt.data}
       />
       <Snackbar
         autoHideDuration={3500}

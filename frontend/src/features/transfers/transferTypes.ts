@@ -43,3 +43,19 @@ export type CreateTransferData = {
   idempotencyKey: string;
   description: string;
 };
+
+export type TransferReceipt = {
+  receiptNumber: string;
+  transferId: string;
+  issuedAt: string;
+  executedAt: string;
+  sourceHolder: string;
+  sourceDocument: string;
+  sourceCbu: string;
+  destinationHolder: string;
+  destinationCbu: string;
+  destinationAlias: string | null;
+  amount: number;
+  currency: string;
+  description: string | null;
+};

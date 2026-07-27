@@ -4,6 +4,7 @@ import type {
   Transfer,
   TransferPage,
   TransferQuery,
+  TransferReceipt,
 } from './transferTypes';
 
 export async function getTransfers(query: TransferQuery) {
@@ -17,4 +18,10 @@ export async function getTransfers(query: TransferQuery) {
 
 export async function createTransfer(data: CreateTransferData) {
   return (await httpClient.post<Transfer>('/api/v1/transfers', data)).data;
+}
+
+export async function getTransferReceipt(transferId: string) {
+  return (
+    await httpClient.get<TransferReceipt>(`/api/v1/transfers/${transferId}/receipt`)
+  ).data;
 }

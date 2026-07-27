@@ -3,6 +3,7 @@ package com.nexobank.backend.domain.transfer;
 import com.nexobank.backend.domain.transfer.dto.CreateTransferRequest;
 import com.nexobank.backend.domain.transfer.dto.TransferPageResponse;
 import com.nexobank.backend.domain.transfer.dto.TransferResponse;
+import com.nexobank.backend.domain.transfer.dto.TransferReceiptResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -36,5 +37,10 @@ public class TransferController {
     @ResponseStatus(HttpStatus.CREATED)
     public TransferResponse create(@Valid @RequestBody CreateTransferRequest request) {
         return service.create(request);
+    }
+
+    @GetMapping("/{transferId}/receipt")
+    public TransferReceiptResponse getReceipt(@PathVariable UUID transferId) {
+        return service.getReceipt(transferId);
     }
 }
