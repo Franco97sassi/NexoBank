@@ -1,9 +1,14 @@
 import { Alert, Box, Button, Card, CardContent, Stack, Typography } from '@mui/material';
 
 import { useAuth } from '../features/auth/useAuth';
+import { AdminDashboard } from '../features/admin/AdminDashboard';
 
 export function DashboardPage() {
   const { logout, user } = useAuth();
+
+  if (user?.role === 'ADMIN') {
+    return <AdminDashboard />;
+  }
 
   return (
     <Stack spacing={3}>
