@@ -131,4 +131,11 @@ public class Transfer extends BaseEntity {
 
     public Instant getExecutedAt() {
         return executedAt;
-    }}
+    }
+
+    public void complete(Instant executedAt) {
+        this.status = TransferStatus.COMPLETED;
+        this.executedAt = executedAt;
+        this.failureReason = null;
+    }
+}

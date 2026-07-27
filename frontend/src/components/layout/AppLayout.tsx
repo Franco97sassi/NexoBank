@@ -5,6 +5,7 @@ import {
   People,
   ReceiptLong,
   PersonAddAlt,
+  SwapHoriz,
 } from '@mui/icons-material';
 import { AppBar, Box, Button, Container, Toolbar, Typography } from '@mui/material';
 import { Link, Outlet } from 'react-router-dom';
@@ -68,6 +69,14 @@ export function AppLayout() {
                   to="/beneficiaries"
                 >
                   Destinatarios
+                </Button>
+                <Button
+                  color="inherit"
+                  component={Link}
+                  startIcon={<SwapHoriz />}
+                  to="/transfers"
+                >
+                  Transferencias
                 </Button>
               </>
             )}

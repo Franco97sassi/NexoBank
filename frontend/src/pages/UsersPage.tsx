@@ -30,7 +30,7 @@ import {
 import { Add, DeleteOutline, EditOutlined, Search } from '@mui/icons-material';
 
 import type { AuthUser } from '../features/auth/authTypes';
-import { UserDialog } from '../features/users/UserDialog';
+import { UserDialog } from '../features/users/userDialog';
 import { createUser, deleteUser, getUsers, updateUser } from '../features/users/usersApi';
 import type { UserFormData, UserQuery } from '../features/users/userTypes';
 
