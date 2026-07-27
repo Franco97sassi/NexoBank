@@ -15,6 +15,9 @@ export async function createAccount(data: CreateAccountData): Promise<Account> {
   return (await httpClient.post<Account>('/api/v1/accounts', data)).data;
 }
 
-export async function updateAccount(id: string, data: UpdateAccountData): Promise<Account> {
+export async function updateAccount(
+  id: string,
+  data: UpdateAccountData,
+): Promise<Account> {
   return (await httpClient.put<Account>(`/api/v1/accounts/${id}`, data)).data;
 }

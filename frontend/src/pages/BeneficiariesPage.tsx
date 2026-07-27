@@ -1,22 +1,247 @@
 import { useState } from 'react';
 import { Add, DeleteOutlined, EditOutlined, Search } from '@mui/icons-material';
-import { Alert, Box, Button, IconButton, MenuItem, Paper, Snackbar, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, TextField, Tooltip, Typography } from '@mui/material';
+import {
+  Alert,
+  Box,
+  Button,
+  IconButton,
+  MenuItem,
+  Paper,
+  Snackbar,
+  Stack,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TablePagination,
+  TableRow,
+  TextField,
+  Tooltip,
+  Typography,
+} from '@mui/material';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import { getCustomers } from '../features/customers/customersApi';
 import { BeneficiaryDialog } from '../features/beneficiaries/BeneficiaryDialog';
-import { createBeneficiary, deactivateBeneficiary, getBeneficiaries, updateBeneficiary } from '../features/beneficiaries/beneficiariesApi';
-import type { Beneficiary, BeneficiaryFormData, BeneficiaryQuery } from '../features/beneficiaries/beneficiaryTypes';
-const errorMessage=(e:unknown)=>axios.isAxiosError<{message?:string}>(e)?e.response?.data?.message??'No se pudo completar la operación.':'No se pudo completar la operación.';
-export function BeneficiariesPage(){
- const client=useQueryClient(); const [query,setQuery]=useState<BeneficiaryQuery>({customerId:'',search:'',active:true,page:0,size:10,sortBy:'displayName',direction:'ASC'}); const [search,setSearch]=useState(''); const [editing,setEditing]=useState<Beneficiary|null>(null); const [open,setOpen]=useState(false); const [message,setMessage]=useState('');
- const beneficiaries=useQuery({queryKey:['beneficiaries',query],queryFn:()=>getBeneficiaries(query)}); const customers=useQuery({queryKey:['customers','beneficiary-options'],queryFn:()=>getCustomers({search:'',page:0,size:100,sortBy:'lastName',direction:'ASC'})});
- const refresh=()=>client.invalidateQueries({queryKey:['beneficiaries']});
- const save=useMutation({mutationFn:(data:BeneficiaryFormData)=>editing?updateBeneficiary(editing.id,data):createBeneficiary(data),onSuccess:async()=>{setOpen(false);setMessage(editing?'Destinatario actualizado.':'Destinatario creado.');await refresh()}});
- const remove=useMutation({mutationFn:deactivateBeneficiary,onSuccess:async()=>{setMessage('Destinatario desactivado.');await refresh()}});
- return <Stack spacing={3}><Box><Typography component="h1" variant="h4">Destinatarios</Typography><Typography color="text.secondary">Administra beneficiarios internos y de otros bancos.</Typography></Box>
- <Paper sx={{p:2}}><Stack direction={{xs:'column',md:'row'}} spacing={2}><TextField fullWidth label="Buscar por nombre, CBU, alias o banco" onChange={e=>setSearch(e.target.value)} onKeyDown={e=>e.key==='Enter'&&setQuery(q=>({...q,search,page:0}))} size="small" value={search}/><TextField label="Estado" select size="small" value={String(query.active)} onChange={e=>setQuery(q=>({...q,active:e.target.value===''?'':e.target.value==='true',page:0}))}><MenuItem value="true">Activos</MenuItem><MenuItem value="false">Inactivos</MenuItem><MenuItem value="">Todos</MenuItem></TextField><Button startIcon={<Search/>} variant="outlined" onClick={()=>setQuery(q=>({...q,search,page:0}))}>Buscar</Button><Button startIcon={<Add/>} variant="contained" onClick={()=>{setEditing(null);save.reset();setOpen(true)}}>Nuevo</Button></Stack></Paper>
- {(beneficiaries.isError||save.isError||remove.isError)&&<Alert severity="error">{errorMessage(beneficiaries.error??save.error??remove.error)}</Alert>}
- <TableContainer component={Paper}><Table aria-label="Destinatarios"><TableHead><TableRow><TableCell>Nombre</TableCell><TableCell>Cliente</TableCell><TableCell>CBU / Alias</TableCell><TableCell>Banco</TableCell><TableCell>Tipo</TableCell><TableCell>Estado</TableCell><TableCell align="right">Acciones</TableCell></TableRow></TableHead><TableBody>{beneficiaries.isLoading&&<TableRow><TableCell colSpan={7}>Cargando destinatarios…</TableCell></TableRow>}{beneficiaries.data?.content.map(b=><TableRow hover key={b.id}><TableCell>{b.displayName}</TableCell><TableCell>{b.customerName}</TableCell><TableCell>{b.cbu}<br/>{b.alias??'—'}</TableCell><TableCell>{b.bankName??'—'}</TableCell><TableCell>{b.internal?'NexoBank':'Externo'}</TableCell><TableCell>{b.active?'Activo':'Inactivo'}</TableCell><TableCell align="right"><Tooltip title="Editar"><IconButton onClick={()=>{setEditing(b);save.reset();setOpen(true)}}><EditOutlined/></IconButton></Tooltip>{b.active&&<Tooltip title="Desactivar"><IconButton color="error" disabled={remove.isPending} onClick={()=>remove.mutate(b.id)}><DeleteOutlined/></IconButton></Tooltip>}</TableCell></TableRow>)}{!beneficiaries.isLoading&&beneficiaries.data?.content.length===0&&<TableRow><TableCell align="center" colSpan={7}>No se encontraron destinatarios.</TableCell></TableRow>}</TableBody></Table><TablePagination component="div" count={beneficiaries.data?.totalElements??0} page={query.page} rowsPerPage={query.size} rowsPerPageOptions={[5,10,25,50]} onPageChange={(_,page)=>setQuery(q=>({...q,page}))} onRowsPerPageChange={e=>setQuery(q=>({...q,page:0,size:Number(e.target.value)}))}/></TableContainer>
- <BeneficiaryDialog customers={customers.data?.content??[]} editing={editing} loading={save.isPending} onClose={()=>setOpen(false)} onSubmit={data=>save.mutate(data)} open={open}/><Snackbar autoHideDuration={3500} message={message} onClose={()=>setMessage('')} open={Boolean(message)}/></Stack>
+import {
+  createBeneficiary,
+  deactivateBeneficiary,
+  getBeneficiaries,
+  updateBeneficiary,
+} from '../features/beneficiaries/beneficiariesApi';
+import type {
+  Beneficiary,
+  BeneficiaryFormData,
+  BeneficiaryQuery,
+} from '../features/beneficiaries/beneficiaryTypes';
+const errorMessage = (e: unknown) =>
+  axios.isAxiosError<{ message?: string }>(e)
+    ? (e.response?.data?.message ?? 'No se pudo completar la operación.')
+    : 'No se pudo completar la operación.';
+export function BeneficiariesPage() {
+  const client = useQueryClient();
+  const [query, setQuery] = useState<BeneficiaryQuery>({
+    customerId: '',
+    search: '',
+    active: true,
+    page: 0,
+    size: 10,
+    sortBy: 'displayName',
+    direction: 'ASC',
+  });
+  const [search, setSearch] = useState('');
+  const [editing, setEditing] = useState<Beneficiary | null>(null);
+  const [open, setOpen] = useState(false);
+  const [message, setMessage] = useState('');
+  const beneficiaries = useQuery({
+    queryKey: ['beneficiaries', query],
+    queryFn: () => getBeneficiaries(query),
+  });
+  const customers = useQuery({
+    queryKey: ['customers', 'beneficiary-options'],
+    queryFn: () =>
+      getCustomers({
+        search: '',
+        page: 0,
+        size: 100,
+        sortBy: 'lastName',
+        direction: 'ASC',
+      }),
+  });
+  const refresh = () => client.invalidateQueries({ queryKey: ['beneficiaries'] });
+  const save = useMutation({
+    mutationFn: (data: BeneficiaryFormData) =>
+      editing ? updateBeneficiary(editing.id, data) : createBeneficiary(data),
+    onSuccess: async () => {
+      setOpen(false);
+      setMessage(editing ? 'Destinatario actualizado.' : 'Destinatario creado.');
+      await refresh();
+    },
+  });
+  const remove = useMutation({
+    mutationFn: deactivateBeneficiary,
+    onSuccess: async () => {
+      setMessage('Destinatario desactivado.');
+      await refresh();
+    },
+  });
+  return (
+    <Stack spacing={3}>
+      <Box>
+        <Typography component="h1" variant="h4">
+          Destinatarios
+        </Typography>
+        <Typography color="text.secondary">
+          Administra beneficiarios internos y de otros bancos.
+        </Typography>
+      </Box>
+      <Paper sx={{ p: 2 }}>
+        <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
+          <TextField
+            fullWidth
+            label="Buscar por nombre, CBU, alias o banco"
+            onChange={(e) => setSearch(e.target.value)}
+            onKeyDown={(e) =>
+              e.key === 'Enter' && setQuery((q) => ({ ...q, search, page: 0 }))
+            }
+            size="small"
+            value={search}
+          />
+          <TextField
+            label="Estado"
+            select
+            size="small"
+            value={String(query.active)}
+            onChange={(e) =>
+              setQuery((q) => ({
+                ...q,
+                active: e.target.value === '' ? '' : e.target.value === 'true',
+                page: 0,
+              }))
+            }
+          >
+            <MenuItem value="true">Activos</MenuItem>
+            <MenuItem value="false">Inactivos</MenuItem>
+            <MenuItem value="">Todos</MenuItem>
+          </TextField>
+          <Button
+            startIcon={<Search />}
+            variant="outlined"
+            onClick={() => setQuery((q) => ({ ...q, search, page: 0 }))}
+          >
+            Buscar
+          </Button>
+          <Button
+            startIcon={<Add />}
+            variant="contained"
+            onClick={() => {
+              setEditing(null);
+              save.reset();
+              setOpen(true);
+            }}
+          >
+            Nuevo
+          </Button>
+        </Stack>
+      </Paper>
+      {(beneficiaries.isError || save.isError || remove.isError) && (
+        <Alert severity="error">
+          {errorMessage(beneficiaries.error ?? save.error ?? remove.error)}
+        </Alert>
+      )}
+      <TableContainer component={Paper}>
+        <Table aria-label="Destinatarios">
+          <TableHead>
+            <TableRow>
+              <TableCell>Nombre</TableCell>
+              <TableCell>Cliente</TableCell>
+              <TableCell>CBU / Alias</TableCell>
+              <TableCell>Banco</TableCell>
+              <TableCell>Tipo</TableCell>
+              <TableCell>Estado</TableCell>
+              <TableCell align="right">Acciones</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {beneficiaries.isLoading && (
+              <TableRow>
+                <TableCell colSpan={7}>Cargando destinatarios…</TableCell>
+              </TableRow>
+            )}
+            {beneficiaries.data?.content.map((b) => (
+              <TableRow hover key={b.id}>
+                <TableCell>{b.displayName}</TableCell>
+                <TableCell>{b.customerName}</TableCell>
+                <TableCell>
+                  {b.cbu}
+                  <br />
+                  {b.alias ?? '—'}
+                </TableCell>
+                <TableCell>{b.bankName ?? '—'}</TableCell>
+                <TableCell>{b.internal ? 'NexoBank' : 'Externo'}</TableCell>
+                <TableCell>{b.active ? 'Activo' : 'Inactivo'}</TableCell>
+                <TableCell align="right">
+                  <Tooltip title="Editar">
+                    <IconButton
+                      onClick={() => {
+                        setEditing(b);
+                        save.reset();
+                        setOpen(true);
+                      }}
+                    >
+                      <EditOutlined />
+                    </IconButton>
+                  </Tooltip>
+                  {b.active && (
+                    <Tooltip title="Desactivar">
+                      <IconButton
+                        color="error"
+                        disabled={remove.isPending}
+                        onClick={() => remove.mutate(b.id)}
+                      >
+                        <DeleteOutlined />
+                      </IconButton>
+                    </Tooltip>
+                  )}
+                </TableCell>
+              </TableRow>
+            ))}
+            {!beneficiaries.isLoading && beneficiaries.data?.content.length === 0 && (
+              <TableRow>
+                <TableCell align="center" colSpan={7}>
+                  No se encontraron destinatarios.
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+        <TablePagination
+          component="div"
+          count={beneficiaries.data?.totalElements ?? 0}
+          page={query.page}
+          rowsPerPage={query.size}
+          rowsPerPageOptions={[5, 10, 25, 50]}
+          onPageChange={(_, page) => setQuery((q) => ({ ...q, page }))}
+          onRowsPerPageChange={(e) =>
+            setQuery((q) => ({ ...q, page: 0, size: Number(e.target.value) }))
+          }
+        />
+      </TableContainer>
+      <BeneficiaryDialog
+        customers={customers.data?.content ?? []}
+        editing={editing}
+        loading={save.isPending}
+        onClose={() => setOpen(false)}
+        onSubmit={(data) => save.mutate(data)}
+        open={open}
+      />
+      <Snackbar
+        autoHideDuration={3500}
+        message={message}
+        onClose={() => setMessage('')}
+        open={Boolean(message)}
+      />
+    </Stack>
+  );
 }

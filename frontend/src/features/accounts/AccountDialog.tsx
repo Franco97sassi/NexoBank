@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from 'react';
+import { useState, type FormEvent } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import {
   Alert,
@@ -36,11 +36,25 @@ type Props = {
 };
 
 export function AccountDialog({ account, loading, open, onClose, onSubmit }: Props) {
+  if (!open) return null;
+  return (
+    <AccountDialogForm
+      account={account}
+      loading={loading}
+      onClose={onClose}
+      onSubmit={onSubmit}
+    />
+  );
+}
+
+function AccountDialogForm({ account, loading, onClose, onSubmit }: Omit<Props, 'open'>) {
   const [customer, setCustomer] = useState<Customer | null>(null);
-  const [accountType, setAccountType] = useState<AccountType>('SAVINGS');
-  const [currency, setCurrency] = useState<Currency>('ARS');
-  const [alias, setAlias] = useState('');
-  const [status, setStatus] = useState<AccountStatus>('ACTIVE');
+  const [accountType, setAccountType] = useState<AccountType>(
+    account?.accountType ?? 'SAVINGS',
+  );
+  const [currency, setCurrency] = useState<Currency>(account?.currency ?? 'ARS');
+  const [alias, setAlias] = useState(account?.alias ?? '');
+  const [status, setStatus] = useState<AccountStatus>(account?.status ?? 'ACTIVE');
   const [validation, setValidation] = useState('');
   const customers = useQuery({
     queryKey: ['account-customer-options'],
@@ -52,18 +66,8 @@ export function AccountDialog({ account, loading, open, onClose, onSubmit }: Pro
         sortBy: 'lastName',
         direction: 'ASC',
       }),
-    enabled: open && !account,
+    enabled: !account,
   });
-
-  useEffect(() => {
-    if (!open) return;
-    setCustomer(null);
-    setAccountType(account?.accountType ?? 'SAVINGS');
-    setCurrency(account?.currency ?? 'ARS');
-    setAlias(account?.alias ?? '');
-    setStatus(account?.status ?? 'ACTIVE');
-    setValidation('');
-  }, [account, open]);
 
   const submit = (event: FormEvent) => {
     event.preventDefault();
@@ -84,7 +88,7 @@ export function AccountDialog({ account, loading, open, onClose, onSubmit }: Pro
   };
 
   return (
-    <Dialog fullWidth maxWidth="sm" onClose={loading ? undefined : onClose} open={open}>
+    <Dialog fullWidth maxWidth="sm" onClose={loading ? undefined : onClose} open>
       <form onSubmit={submit}>
         <DialogTitle>{account ? 'Editar cuenta' : 'Crear cuenta'}</DialogTitle>
         <DialogContent>
@@ -101,7 +105,9 @@ export function AccountDialog({ account, loading, open, onClose, onSubmit }: Pro
                 loading={customers.isLoading}
                 onChange={(_, value) => setCustomer(value)}
                 options={customers.data?.content ?? []}
-                renderInput={(params) => <TextField {...params} label="Cliente titular" required />}
+                renderInput={(params) => (
+                  <TextField {...params} label="Cliente titular" required />
+                )}
                 value={customer}
               />
             )}
@@ -132,7 +138,11 @@ export function AccountDialog({ account, loading, open, onClose, onSubmit }: Pro
               </FormControl>
             </Stack>
             <TextField
-              helperText={account ? undefined : 'Opcional: se genera automáticamente si queda vacío.'}
+              helperText={
+                account
+                  ? undefined
+                  : 'Opcional: se genera automáticamente si queda vacío.'
+              }
               inputProps={{ minLength: 6, maxLength: 30, pattern: '[A-Za-z0-9.]{6,30}' }}
               label="Alias"
               onChange={(event) => setAlias(event.target.value)}
@@ -157,7 +167,9 @@ export function AccountDialog({ account, loading, open, onClose, onSubmit }: Pro
           </Stack>
         </DialogContent>
         <DialogActions>
-          <Button disabled={loading} onClick={onClose}>Cancelar</Button>
+          <Button disabled={loading} onClick={onClose}>
+            Cancelar
+          </Button>
           <Button disabled={loading} type="submit" variant="contained">
             {loading ? 'Guardando…' : 'Guardar'}
           </Button>

@@ -29,7 +29,14 @@ export type AccountQuery = {
   search: string;
   page: number;
   size: number;
-  sortBy: 'cbu' | 'alias' | 'currency' | 'accountType' | 'status' | 'balance' | 'createdAt';
+  sortBy:
+    | 'cbu'
+    | 'alias'
+    | 'currency'
+    | 'accountType'
+    | 'status'
+    | 'balance'
+    | 'createdAt';
   direction: 'ASC' | 'DESC';
 };
 

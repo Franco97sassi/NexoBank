@@ -13,7 +13,7 @@ const apiBaseUrl = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8080';
 let refreshRequest: Promise<AuthResponse> | null = null;
 export const httpClient = axios.create({
   baseURL: apiBaseUrl,
-    headers: {
+  headers: {
     'Content-Type': 'application/json',
   },
 });
@@ -59,7 +59,7 @@ httpClient.interceptors.response.use(
       return httpClient(request);
     } catch (refreshError) {
       clearAuthSession();
-            return Promise.reject(refreshError);
+      return Promise.reject(refreshError);
     }
-   },
+  },
 );

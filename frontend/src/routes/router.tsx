@@ -32,7 +32,7 @@ export const router = createBrowserRouter([
             index: true,
             element: <DashboardPage />,
           },
-           {
+          {
             element: <AdminRoute />,
             children: [
               {

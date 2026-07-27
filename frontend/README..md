@@ -34,7 +34,6 @@ Plataforma bancaria full stack para la gestión de cuentas, movimientos y transf
 - [Arquitectura](docs/architecture.md)
 - [Convenciones de código](docs/code-conventions.md)
 
- 
 ## Funcionalidades iniciales
 
 - Autenticación

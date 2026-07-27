@@ -1,7 +1,7 @@
 import { Alert } from '@mui/material';
 import { Navigate, Outlet } from 'react-router-dom';
 
-import { useAuth } from './AuthContext';
+import { useAuth } from './useAuth';
 
 export function AdminRoute() {
   const { isAuthenticated, user } = useAuth();

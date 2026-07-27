@@ -1,8 +1,15 @@
-import { AccountBalance, AccountBalanceWallet, ManageAccounts, People, ReceiptLong, PersonAddAlt } from '@mui/icons-material';
+import {
+  AccountBalance,
+  AccountBalanceWallet,
+  ManageAccounts,
+  People,
+  ReceiptLong,
+  PersonAddAlt,
+} from '@mui/icons-material';
 import { AppBar, Box, Button, Container, Toolbar, Typography } from '@mui/material';
 import { Link, Outlet } from 'react-router-dom';
 
-import { useAuth } from '../../features/auth/AuthContext';
+import { useAuth } from '../../features/auth/useAuth';
 export function AppLayout() {
   const { isAuthenticated, user } = useAuth();
 
@@ -21,7 +28,7 @@ export function AppLayout() {
               NexoBank
             </Typography>
             {user?.role === 'ADMIN' && (
-               <>
+              <>
                 <Button
                   color="inherit"
                   component={Link}
@@ -38,13 +45,28 @@ export function AppLayout() {
                 >
                   Clientes
                 </Button>
-                <Button color="inherit" component={Link} startIcon={<AccountBalanceWallet />} to="/accounts">
+                <Button
+                  color="inherit"
+                  component={Link}
+                  startIcon={<AccountBalanceWallet />}
+                  to="/accounts"
+                >
                   Cuentas
                 </Button>
-                <Button color="inherit" component={Link} startIcon={<ReceiptLong />} to="/transactions">
+                <Button
+                  color="inherit"
+                  component={Link}
+                  startIcon={<ReceiptLong />}
+                  to="/transactions"
+                >
                   Movimientos
                 </Button>
-                <Button color="inherit" component={Link} startIcon={<PersonAddAlt />} to="/beneficiaries">
+                <Button
+                  color="inherit"
+                  component={Link}
+                  startIcon={<PersonAddAlt />}
+                  to="/beneficiaries"
+                >
                   Destinatarios
                 </Button>
               </>

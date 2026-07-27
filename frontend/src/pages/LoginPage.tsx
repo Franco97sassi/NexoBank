@@ -1,8 +1,17 @@
 import { FormEvent, useState } from 'react';
-import { Alert, Box, Button, Card, CardContent, Stack, TextField, Typography } from '@mui/material';
+import {
+  Alert,
+  Box,
+  Button,
+  Card,
+  CardContent,
+  Stack,
+  TextField,
+  Typography,
+} from '@mui/material';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 
-import { useAuth } from '../features/auth/AuthContext';
+import { useAuth } from '../features/auth/useAuth';
 
 export function LoginPage() {
   const { login } = useAuth();
@@ -19,7 +28,9 @@ export function LoginPage() {
     setIsSubmitting(true);
     try {
       await login({ email, password });
-      const redirectTo = (location.state as { from?: { pathname?: string } } | null)?.from?.pathname ?? '/';
+      const redirectTo =
+        (location.state as { from?: { pathname?: string } } | null)?.from?.pathname ??
+        '/';
       navigate(redirectTo, { replace: true });
     } catch {
       setError('No se pudo iniciar sesión. Revisá el email y la contraseña.');

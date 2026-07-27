@@ -11,7 +11,7 @@ export function saveAuthSession(auth: AuthResponse) {
   localStorage.setItem(ACCESS_TOKEN_KEY, auth.accessToken);
   localStorage.setItem(REFRESH_TOKEN_KEY, auth.refreshToken);
   localStorage.setItem(USER_KEY, JSON.stringify(auth.user));
-   localStorage.setItem(EXPIRES_AT_KEY, String(Date.now() + auth.expiresInSeconds * 1000));
+  localStorage.setItem(EXPIRES_AT_KEY, String(Date.now() + auth.expiresInSeconds * 1000));
   window.dispatchEvent(new Event(AUTH_SESSION_CHANGED_EVENT));
 }
 
@@ -19,7 +19,7 @@ export function clearAuthSession() {
   localStorage.removeItem(ACCESS_TOKEN_KEY);
   localStorage.removeItem(REFRESH_TOKEN_KEY);
   localStorage.removeItem(USER_KEY);
-   localStorage.removeItem(EXPIRES_AT_KEY);
+  localStorage.removeItem(EXPIRES_AT_KEY);
   window.dispatchEvent(new Event(AUTH_SESSION_CHANGED_EVENT));
 }
 

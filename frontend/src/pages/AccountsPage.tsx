@@ -24,7 +24,11 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 
 import { AccountDialog } from '../features/accounts/AccountDialog';
-import { createAccount, getAccounts, updateAccount } from '../features/accounts/accountsApi';
+import {
+  createAccount,
+  getAccounts,
+  updateAccount,
+} from '../features/accounts/accountsApi';
 import type {
   Account,
   AccountQuery,
@@ -90,7 +94,9 @@ export function AccountsPage() {
   return (
     <Stack spacing={3}>
       <Box>
-        <Typography component="h1" variant="h4">Gestión de cuentas</Typography>
+        <Typography component="h1" variant="h4">
+          Gestión de cuentas
+        </Typography>
         <Typography color="text.secondary">
           Crea cuentas bancarias y administra sus alias y estados.
         </Typography>
@@ -102,7 +108,8 @@ export function AccountsPage() {
             label="Buscar por titular, documento, CBU o alias"
             onChange={(event) => setSearch(event.target.value)}
             onKeyDown={(event) =>
-              event.key === 'Enter' && setQuery((value) => ({ ...value, search, page: 0 }))
+              event.key === 'Enter' &&
+              setQuery((value) => ({ ...value, search, page: 0 }))
             }
             size="small"
             value={search}
@@ -145,7 +152,9 @@ export function AccountsPage() {
           </TableHead>
           <TableBody>
             {accounts.isLoading && (
-              <TableRow><TableCell colSpan={8}>Cargando cuentas…</TableCell></TableRow>
+              <TableRow>
+                <TableCell colSpan={8}>Cargando cuentas…</TableCell>
+              </TableRow>
             )}
             {accounts.data?.content.map((account) => (
               <TableRow hover key={account.id}>
@@ -182,7 +191,11 @@ export function AccountsPage() {
               </TableRow>
             ))}
             {!accounts.isLoading && accounts.data?.content.length === 0 && (
-              <TableRow><TableCell align="center" colSpan={8}>No se encontraron cuentas.</TableCell></TableRow>
+              <TableRow>
+                <TableCell align="center" colSpan={8}>
+                  No se encontraron cuentas.
+                </TableCell>
+              </TableRow>
             )}
           </TableBody>
         </Table>

@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from 'react';
+import { useState, type FormEvent } from 'react';
 import {
   Alert,
   Autocomplete,
@@ -25,45 +25,48 @@ type Props = {
 };
 
 export function CustomerDialog({ open, customer, loading, onClose, onSubmit }: Props) {
-  const [user, setUser] = useState<AuthUser | null>(null);
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [documentNumber, setDocumentNumber] = useState('');
-  const [birthDate, setBirthDate] = useState('');
-  const [phone, setPhone] = useState('');
+  if (!open) return null;
+  return (
+    <CustomerDialogForm
+      customer={customer}
+      loading={loading}
+      onClose={onClose}
+      onSubmit={onSubmit}
+    />
+  );
+}
+
+function CustomerDialogForm({
+  customer,
+  loading,
+  onClose,
+  onSubmit,
+}: Omit<Props, 'open'>) {
+  const [user, setUser] = useState<AuthUser | null>(() =>
+    customer
+      ? {
+          id: customer.userId,
+          email: customer.userEmail,
+          role: 'CUSTOMER',
+          enabled: true,
+        }
+      : null,
+  );
+  const [firstName, setFirstName] = useState(customer?.firstName ?? '');
+  const [lastName, setLastName] = useState(customer?.lastName ?? '');
+  const [documentNumber, setDocumentNumber] = useState(customer?.documentNumber ?? '');
+  const [birthDate, setBirthDate] = useState(customer?.birthDate ?? '');
+  const [phone, setPhone] = useState(customer?.phone ?? '');
   const [validation, setValidation] = useState('');
   const users = useQuery({
     queryKey: ['customer-user-options'],
     queryFn: () =>
       getUsers({ search: '', page: 0, size: 100, sortBy: 'email', direction: 'ASC' }),
-    enabled: open,
+    enabled: true,
   });
   const options = (users.data?.content ?? []).filter(
     (item) => item.role === 'CUSTOMER' && item.enabled,
   );
-
-  useEffect(() => {
-    if (!open) return;
-    setFirstName(customer?.firstName ?? '');
-    setLastName(customer?.lastName ?? '');
-    setDocumentNumber(customer?.documentNumber ?? '');
-    setBirthDate(customer?.birthDate ?? '');
-    setPhone(customer?.phone ?? '');
-    setValidation('');
-  }, [open, customer]);
-  useEffect(() => {
-    if (!open) return;
-    setUser(
-      customer
-        ? (options.find((item) => item.id === customer.userId) ?? {
-            id: customer.userId,
-            email: customer.userEmail,
-            role: 'CUSTOMER',
-            enabled: true,
-          })
-        : null,
-    );
-  }, [open, customer, users.data]);
 
   const submit = (event: FormEvent) => {
     event.preventDefault();
@@ -82,7 +85,7 @@ export function CustomerDialog({ open, customer, loading, onClose, onSubmit }: P
   };
 
   return (
-    <Dialog fullWidth maxWidth="sm" onClose={loading ? undefined : onClose} open={open}>
+    <Dialog fullWidth maxWidth="sm" onClose={loading ? undefined : onClose} open>
       <form onSubmit={submit}>
         <DialogTitle>{customer ? 'Editar cliente' : 'Crear cliente'}</DialogTitle>
         <DialogContent>
