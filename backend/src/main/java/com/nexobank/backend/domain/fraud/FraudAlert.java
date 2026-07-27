@@ -108,4 +108,10 @@ public class FraudAlert extends BaseEntity {
     public Instant getReviewedAt() {
         return reviewedAt;
     }
+
+    public void review(FraudAlertStatus status, User reviewer, Instant reviewedAt) {
+        this.status = status;
+        this.reviewedByUser = reviewer;
+        this.reviewedAt = reviewedAt;
+    }
 }

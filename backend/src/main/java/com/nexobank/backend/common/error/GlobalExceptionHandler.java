@@ -7,6 +7,7 @@ import com.nexobank.backend.domain.customer.CustomerConflictException;
 import com.nexobank.backend.domain.beneficiary.BeneficiaryConflictException;
 import com.nexobank.backend.domain.transaction.TransactionConflictException;
 import com.nexobank.backend.domain.transfer.TransferConflictException;
+import com.nexobank.backend.domain.fraud.FraudAlertConflictException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.slf4j.Logger;
@@ -60,7 +61,8 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler({UserConflictException.class, CustomerConflictException.class, AccountConflictException.class,
-            TransactionConflictException.class, BeneficiaryConflictException.class, TransferConflictException.class})
+            TransactionConflictException.class, BeneficiaryConflictException.class, TransferConflictException.class,
+            FraudAlertConflictException.class})
     public ResponseEntity<ApiErrorResponse> handleConflict(
             RuntimeException exception,
             HttpServletRequest request

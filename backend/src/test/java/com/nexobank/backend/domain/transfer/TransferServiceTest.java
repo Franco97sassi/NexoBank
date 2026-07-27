@@ -4,6 +4,7 @@ import com.nexobank.backend.domain.account.AccountRepository;
 import com.nexobank.backend.domain.beneficiary.BeneficiaryRepository;
 import com.nexobank.backend.domain.ledger.LedgerEntryRepository;
 import com.nexobank.backend.domain.transaction.TransactionRepository;
+import com.nexobank.backend.domain.fraud.FraudAlertService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,6 +24,7 @@ class TransferServiceTest {
     @Mock BeneficiaryRepository beneficiaryRepository;
     @Mock TransactionRepository transactionRepository;
     @Mock LedgerEntryRepository ledgerEntryRepository;
+    @Mock FraudAlertService fraudAlertService;
     @Mock Transfer transfer;
 
     private TransferService service;
@@ -30,7 +32,7 @@ class TransferServiceTest {
     @BeforeEach
     void setUp() {
         service = new TransferService(transferRepository, accountRepository, beneficiaryRepository,
-                transactionRepository, ledgerEntryRepository);
+                transactionRepository, ledgerEntryRepository, fraudAlertService);
     }
 
     @Test
