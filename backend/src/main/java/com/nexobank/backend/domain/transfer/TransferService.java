@@ -14,6 +14,7 @@ import com.nexobank.backend.domain.transaction.TransactionRepository;
 import com.nexobank.backend.domain.transaction.TransactionType;
 import com.nexobank.backend.domain.transfer.dto.CreateTransferRequest;
 import com.nexobank.backend.domain.transfer.dto.TransferPageResponse;
+import com.nexobank.backend.domain.transfer.dto.TransferReceiptResponse;
 import com.nexobank.backend.domain.transfer.dto.TransferResponse;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -55,6 +56,16 @@ public class TransferService {
         if (status != null) spec = spec.and((root, query, cb) -> cb.equal(root.get("status"), status));
         return TransferPageResponse.from(transfers.findAll(spec,
                 PageRequest.of(page, size, Sort.by(direction, safeSort))).map(TransferResponse::from));
+    }
+
+    @Transactional(readOnly = true)
+    public TransferReceiptResponse getReceipt(UUID transferId) {
+        Transfer transfer = transfers.findById(transferId)
+                .orElseThrow(() -> new ResourceNotFoundException("Transfer not found"));
+        if (transfer.getStatus() != TransferStatus.COMPLETED) {
+            throw new TransferConflictException("A receipt is only available for completed transfers");
+        }
+        return TransferReceiptResponse.from(transfer);
     }
 
     @Transactional

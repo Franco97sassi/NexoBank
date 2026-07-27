@@ -64,6 +64,24 @@ body {
   margin: 0;
 }
 
+@media print {
+  body * {
+    visibility: hidden;
+  }
+
+  #transfer-receipt,
+  #transfer-receipt * {
+    visibility: visible;
+  }
+
+  #transfer-receipt {
+    left: 0;
+    position: absolute;
+    top: 0;
+    width: 100%;
+  }
+}
+
 h1,
 h2 {
   font-family: var(--heading);
