@@ -33,6 +33,8 @@ Plataforma bancaria full stack para la gestión de cuentas, movimientos y transf
 
 - [Arquitectura](docs/architecture.md)
 - [Convenciones de código](docs/code-conventions.md)
+- [Testing](docs/testing.md)
+- [DevOps y despliegue](docs/devops.md)
 
 ## Configuración local del backend
 

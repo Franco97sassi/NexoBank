@@ -1,0 +1,16 @@
+services:
+  postgres:
+    ports: !reset []
+
+  backend:
+    image: ${REGISTRY:-ghcr.io}/${IMAGE_NAMESPACE:?IMAGE_NAMESPACE is required}/nexobank-backend:${IMAGE_TAG:-latest}
+    build: !reset null
+    ports: !reset []
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+
+  frontend:
+    image: ${REGISTRY:-ghcr.io}/${IMAGE_NAMESPACE:?IMAGE_NAMESPACE is required}/nexobank-frontend:${IMAGE_TAG:-latest}
+    build: !reset null
+    ports:
+      - "${FRONTEND_PORT:-80}:80"
