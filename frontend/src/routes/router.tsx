@@ -35,6 +35,9 @@ export const router = createBrowserRouter([
             index: true,
             element: <DashboardPage />,
           },
+          { path: 'accounts', element: <AccountsPage /> },
+          { path: 'transactions', element: <TransactionsPage /> },
+          { path: 'transfers', element: <TransfersPage /> },
           {
             element: <AdminRoute />,
             children: [
@@ -43,10 +46,7 @@ export const router = createBrowserRouter([
                 element: <UsersPage />,
               },
               { path: 'customers', element: <CustomersPage /> },
-              { path: 'accounts', element: <AccountsPage /> },
-              { path: 'transactions', element: <TransactionsPage /> },
               { path: 'beneficiaries', element: <BeneficiariesPage /> },
-              { path: 'transfers', element: <TransfersPage /> },
               { path: 'audit', element: <AuditPage /> },
               { path: 'fraud-alerts', element: <FraudAlertsPage /> },
             ],
