@@ -96,8 +96,10 @@ public class AuthService {
     }
 
     @Transactional
-    public void logout(String refreshToken) {
+    public User logout(String refreshToken) {
+        User user = refreshTokenService.validateAndGetUser(refreshToken);
         refreshTokenService.revoke(refreshToken);
+        return user;
     }
 
     private AuthResponse buildAuthResponse(User user) {
