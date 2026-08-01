@@ -46,9 +46,20 @@ El access token es de vida corta. No envíe el refresh token como bearer: úselo
 | Auditoría | `/api/v1/audit-events` | consulta administrativa paginada |
 | Fraude | `/api/v1/fraud-alerts` | consulta y revisión administrativa |
 | Administración | `/api/v1/admin/dashboard` | métricas agregadas |
+| Libro mayor | `/api/v1/ledger` | consulta de partidas y asientos balanceados |
 
 Los listados aceptan `page` y `size` y devuelven `content`, `page`, `size`, `totalElements` y `totalPages`.
 Cada recurso puede añadir filtros específicos que aparecen en Swagger.
+
+### Libro mayor de doble entrada
+
+Los depósitos, retiros, ajustes y transferencias generan un asiento indivisible identificado por `journalId`.
+Cada asiento contiene débitos y créditos por el mismo importe y moneda. Las transferencias externas usan la
+cuenta técnica `SYSTEM:EXTERNAL_SETTLEMENT`, mientras que los movimientos de efectivo se compensan contra
+`SYSTEM:CASH`; de este modo ningún movimiento queda sin contrapartida.
+
+Los roles `EMPLOYEE` y `ADMIN` pueden listar las partidas con `GET /api/v1/ledger`, filtrarlas por `accountId` o
+`transferId`, y recuperar un asiento completo con `GET /api/v1/ledger/journals/{journalId}`.
 
 ## Flujo de datos de ejemplo
 

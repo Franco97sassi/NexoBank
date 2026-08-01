@@ -14,14 +14,21 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 @Entity
 @Table(name = "ledger_entries")
 public class LedgerEntry extends BaseEntity {
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "account_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "account_id")
     private Account account;
+
+    @Column(name = "journal_id", nullable = false)
+    private UUID journalId;
+
+    @Column(name = "account_code", nullable = false, length = 100)
+    private String accountCode;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "transfer_id")
@@ -41,7 +48,7 @@ public class LedgerEntry extends BaseEntity {
     @Column(nullable = false, length = 3)
     private String currency;
 
-    @Column(name = "balance_after", nullable = false, precision = 19, scale = 2)
+    @Column(name = "balance_after", precision = 19, scale = 2)
     private BigDecimal balanceAfter;
 
     @Column(length = 255)
@@ -51,6 +58,8 @@ public class LedgerEntry extends BaseEntity {
     }
 
     public LedgerEntry(
+            UUID journalId,
+            String accountCode,
             Account account,
             Transfer transfer,
             Transaction transaction,
@@ -60,6 +69,8 @@ public class LedgerEntry extends BaseEntity {
             BigDecimal balanceAfter,
             String description
     ) {
+        this.journalId = journalId;
+        this.accountCode = accountCode;
         this.account = account;
         this.transfer = transfer;
         this.transaction = transaction;
@@ -68,6 +79,14 @@ public class LedgerEntry extends BaseEntity {
         this.currency = currency;
         this.balanceAfter = balanceAfter;
         this.description = description;
+    }
+
+    public UUID getJournalId() {
+        return journalId;
+    }
+
+    public String getAccountCode() {
+        return accountCode;
     }
 
     public Account getAccount() {

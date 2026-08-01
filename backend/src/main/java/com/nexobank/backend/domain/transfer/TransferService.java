@@ -6,9 +6,7 @@ import com.nexobank.backend.domain.account.AccountRepository;
 import com.nexobank.backend.domain.account.AccountStatus;
 import com.nexobank.backend.domain.beneficiary.Beneficiary;
 import com.nexobank.backend.domain.beneficiary.BeneficiaryRepository;
-import com.nexobank.backend.domain.ledger.LedgerEntry;
-import com.nexobank.backend.domain.ledger.LedgerEntryRepository;
-import com.nexobank.backend.domain.ledger.LedgerEntryType;
+import com.nexobank.backend.domain.ledger.LedgerService;
 import com.nexobank.backend.domain.fraud.FraudAlertService;
 import com.nexobank.backend.domain.transaction.Transaction;
 import com.nexobank.backend.domain.transaction.TransactionRepository;
@@ -33,12 +31,12 @@ public class TransferService {
     private final AccountRepository accounts;
     private final BeneficiaryRepository beneficiaries;
     private final TransactionRepository transactions;
-    private final LedgerEntryRepository ledger;
+    private final LedgerService ledger;
     private final FraudAlertService fraudAlerts;
 
     public TransferService(TransferRepository transfers, AccountRepository accounts,
                            BeneficiaryRepository beneficiaries, TransactionRepository transactions,
-                           LedgerEntryRepository ledger, FraudAlertService fraudAlerts) {
+                           LedgerService ledger, FraudAlertService fraudAlerts) {
         this.transfers = transfers;
         this.accounts = accounts;
         this.beneficiaries = beneficiaries;
@@ -91,17 +89,15 @@ public class TransferService {
         source.changeBalance(sourceBalance);
         transactions.save(new Transaction(source, TransactionType.TRANSFER_OUT, request.amount(),
                 sourceBalance, transfer.getId(), description));
-        ledger.save(new LedgerEntry(source, transfer, null, LedgerEntryType.DEBIT, request.amount(),
-                source.getCurrency(), sourceBalance, description));
-
+        BigDecimal destinationBalance = null;
         if (destination != null) {
-            BigDecimal destinationBalance = destination.getBalance().add(request.amount());
+            destinationBalance = destination.getBalance().add(request.amount());
             destination.changeBalance(destinationBalance);
             transactions.save(new Transaction(destination, TransactionType.TRANSFER_IN, request.amount(),
                     destinationBalance, transfer.getId(), description));
-            ledger.save(new LedgerEntry(destination, transfer, null, LedgerEntryType.CREDIT, request.amount(),
-                    destination.getCurrency(), destinationBalance, description));
         }
+        ledger.recordTransfer(source, destination, transfer, request.amount(), sourceBalance,
+                destinationBalance, description);
         transfer.complete(Instant.now());
         fraudAlerts.evaluate(transfer);
         return TransferResponse.from(transfer);
