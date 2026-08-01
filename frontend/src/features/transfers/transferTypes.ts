@@ -1,5 +1,9 @@
 export type TransferStatus =
-  'PENDING' | 'COMPLETED' | 'REJECTED' | 'FAILED' | 'CANCELLED';
+  | 'PENDING'
+  | 'COMPLETED'
+  | 'REJECTED'
+  | 'FAILED'
+  | 'CANCELLED';
 
 export type Transfer = {
   id: string;
