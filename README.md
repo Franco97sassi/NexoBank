@@ -27,6 +27,9 @@ cd NexoBank
 docker compose up --build
 ```
 
+Opcionalmente copie `.env.example` a `.env` antes de iniciar para personalizar los puertos y credenciales del
+entorno local. Compose también funciona directamente con los valores de desarrollo predeterminados.
+
 Cuando los servicios estén listos:
 
 - aplicación web: <http://localhost:5173>
@@ -108,6 +111,7 @@ El informe JaCoCo se genera en `backend/target/site/jacoco/index.html`. La cober
 - [API, autenticación y Swagger](docs/api.md)
 - [Colección Postman](docs/postman/NexoBank.postman_collection.json)
 - [Estrategia de pruebas](docs/testing.md)
+- [DevOps para el entorno local](docs/devops.md)
 - [Convenciones de código](docs/code-conventions.md)
 
 ## Estructura
