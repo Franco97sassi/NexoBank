@@ -1,3 +1,4 @@
+import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
@@ -15,6 +16,7 @@ function renderLogin(login = vi.fn().mockResolvedValue(undefined)) {
     register: vi.fn(),
     logout: vi.fn(),
   };
+
   render(
     <MemoryRouter>
       <AuthContext.Provider value={value}>
@@ -22,15 +24,28 @@ function renderLogin(login = vi.fn().mockResolvedValue(undefined)) {
       </AuthContext.Provider>
     </MemoryRouter>,
   );
+
   return login;
 }
 
 describe('LoginPage', () => {
   it('submits the credentials entered by the user', async () => {
     const login = renderLogin();
-    await userEvent.type(screen.getByLabelText('Email'), 'ada@nexobank.test');
-    await userEvent.type(screen.getByLabelText('Contraseña'), 'secret-13');
-    await userEvent.click(screen.getByRole('button', { name: 'Ingresar' }));
+
+    await userEvent.type(
+      screen.getByLabelText(/email/i),
+      'ada@nexobank.test',
+    );
+
+    await userEvent.type(
+      screen.getByLabelText(/contraseña/i),
+      'secret-13',
+    );
+
+    await userEvent.click(
+      screen.getByRole('button', { name: /ingresar/i }),
+    );
+
     expect(login).toHaveBeenCalledWith({
       email: 'ada@nexobank.test',
       password: 'secret-13',
@@ -39,9 +54,21 @@ describe('LoginPage', () => {
 
   it('shows a useful message when authentication fails', async () => {
     renderLogin(vi.fn().mockRejectedValue(new Error('unauthorized')));
-    await userEvent.type(screen.getByLabelText('Email'), 'ada@nexobank.test');
-    await userEvent.type(screen.getByLabelText('Contraseña'), 'wrong-password');
-    await userEvent.click(screen.getByRole('button', { name: 'Ingresar' }));
+
+    await userEvent.type(
+      screen.getByLabelText(/email/i),
+      'ada@nexobank.test',
+    );
+
+    await userEvent.type(
+      screen.getByLabelText(/contraseña/i),
+      'wrong-password',
+    );
+
+    await userEvent.click(
+      screen.getByRole('button', { name: /ingresar/i }),
+    );
+
     expect(await screen.findByRole('alert')).toHaveTextContent(
       'No se pudo iniciar sesión',
     );
