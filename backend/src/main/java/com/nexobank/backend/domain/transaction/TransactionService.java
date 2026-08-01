@@ -4,6 +4,8 @@ import com.nexobank.backend.common.exception.ResourceNotFoundException;
 import com.nexobank.backend.domain.account.Account;
 import com.nexobank.backend.domain.account.AccountRepository;
 import com.nexobank.backend.domain.account.AccountStatus;
+import com.nexobank.backend.domain.ledger.LedgerEntryType;
+import com.nexobank.backend.domain.ledger.LedgerService;
 import com.nexobank.backend.domain.transaction.dto.*;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -18,10 +20,13 @@ import java.util.UUID;
 public class TransactionService {
     private final TransactionRepository transactionRepository;
     private final AccountRepository accountRepository;
+    private final LedgerService ledgerService;
 
-    public TransactionService(TransactionRepository transactionRepository, AccountRepository accountRepository) {
+    public TransactionService(TransactionRepository transactionRepository, AccountRepository accountRepository,
+                              LedgerService ledgerService) {
         this.transactionRepository = transactionRepository;
         this.accountRepository = accountRepository;
+        this.ledgerService = ledgerService;
     }
 
     @Transactional(readOnly = true)
@@ -61,9 +66,13 @@ public class TransactionService {
         BigDecimal newBalance = account.getBalance().add(delta);
         if (newBalance.signum() < 0) throw new TransactionConflictException("Insufficient funds");
         account.changeBalance(newBalance);
-        Transaction movement = new Transaction(account, type, delta.abs(), newBalance, null,
-                description == null || description.isBlank() ? defaultDescription(type) : description.trim());
-        return TransactionResponse.from(transactionRepository.save(movement));
+        String effectiveDescription = description == null || description.isBlank()
+                ? defaultDescription(type) : description.trim();
+        Transaction movement = transactionRepository.save(new Transaction(account, type, delta.abs(), newBalance, null,
+                effectiveDescription));
+        LedgerEntryType entryType = delta.signum() > 0 ? LedgerEntryType.CREDIT : LedgerEntryType.DEBIT;
+        ledgerService.recordMovement(account, movement, entryType, delta.abs(), newBalance, effectiveDescription);
+        return TransactionResponse.from(movement);
     }
 
     private String defaultDescription(TransactionType type) {

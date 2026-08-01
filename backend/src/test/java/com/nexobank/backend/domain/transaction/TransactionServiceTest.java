@@ -4,6 +4,7 @@ import com.nexobank.backend.domain.account.Account;
 import com.nexobank.backend.domain.account.AccountRepository;
 import com.nexobank.backend.domain.account.AccountType;
 import com.nexobank.backend.domain.customer.Customer;
+import com.nexobank.backend.domain.ledger.LedgerService;
 import com.nexobank.backend.domain.transaction.dto.MovementRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,13 +27,14 @@ import static org.mockito.Mockito.when;
 class TransactionServiceTest {
     @Mock TransactionRepository transactionRepository;
     @Mock AccountRepository accountRepository;
+    @Mock LedgerService ledgerService;
     private TransactionService service;
     private Account account;
     private UUID accountId;
 
     @BeforeEach
     void setUp() {
-        service = new TransactionService(transactionRepository, accountRepository);
+        service = new TransactionService(transactionRepository, accountRepository, ledgerService);
         account = new Account((Customer) null, "2850590900000000000000", "test.account", "ARS", AccountType.SAVINGS);
         accountId = UUID.randomUUID();
         when(accountRepository.findById(accountId)).thenReturn(Optional.of(account));
