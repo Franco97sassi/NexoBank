@@ -7,6 +7,14 @@ export async function getUsers(query: UserQuery): Promise<UserPage> {
   return response.data;
 }
 
+export async function getCurrentUser(): Promise<AuthUser> {
+  return (await httpClient.get<AuthUser>('/api/v1/users/me')).data;
+}
+
+export async function getUser(userId: string): Promise<AuthUser> {
+  return (await httpClient.get<AuthUser>(`/api/v1/users/${userId}`)).data;
+}
+
 export async function createUser(user: UserFormData): Promise<AuthUser> {
   const response = await httpClient.post<AuthUser>('/api/v1/users', user);
   return response.data;

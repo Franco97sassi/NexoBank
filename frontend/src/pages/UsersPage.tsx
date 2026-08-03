@@ -31,7 +31,13 @@ import { Add, DeleteOutline, EditOutlined, Search } from '@mui/icons-material';
 
 import type { AuthUser } from '../features/auth/authTypes';
 import { UserDialog } from '../features/users/userDialog';
-import { createUser, deleteUser, getUsers, updateUser } from '../features/users/usersApi';
+import {
+  createUser,
+  deleteUser,
+  getUser,
+  getUsers,
+  updateUser,
+} from '../features/users/usersApi';
 import type { UserFormData, UserQuery } from '../features/users/userTypes';
 
 const roleLabels = { CUSTOMER: 'Cliente', EMPLOYEE: 'Empleado', ADMIN: 'Administrador' };
@@ -195,11 +201,13 @@ export function UsersPage() {
                 <TableCell align="right">
                   <Tooltip title="Editar">
                     <IconButton
-                      onClick={() => {
-                        setEditing(user);
-                        setDialogOpen(true);
-                        save.reset();
-                      }}
+                      onClick={() =>
+                        void getUser(user.id).then((current) => {
+                          setEditing(current);
+                          setDialogOpen(true);
+                          save.reset();
+                        })
+                      }
                     >
                       <EditOutlined />
                     </IconButton>

@@ -32,6 +32,7 @@ import { CustomerDialog } from '../features/customers/CustomerDialog';
 import {
   createCustomer,
   deleteCustomer,
+  getCustomer,
   getCustomers,
   updateCustomer,
 } from '../features/customers/customersApi';
@@ -185,11 +186,13 @@ export function CustomersPage() {
                 <TableCell align="right">
                   <Tooltip title="Editar">
                     <IconButton
-                      onClick={() => {
-                        setEditing(customer);
-                        setDialogOpen(true);
-                        save.reset();
-                      }}
+                      onClick={() =>
+                        void getCustomer(customer.id).then((current) => {
+                          setEditing(current);
+                          setDialogOpen(true);
+                          save.reset();
+                        })
+                      }
                     >
                       <EditOutlined />
                     </IconButton>

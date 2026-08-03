@@ -30,6 +30,7 @@ import axios from 'axios';
 import { AccountDialog } from '../features/accounts/AccountDialog';
 import {
   createAccount,
+  getAccount,
   getAccounts,
   updateAccount,
 } from '../features/accounts/accountsApi';
@@ -182,17 +183,21 @@ export function AccountsPage() {
                 <TableCell>{statusLabel[account.status]}</TableCell>
                 <TableCell align="right">
                   <Tooltip title="Ver detalle">
-                    <IconButton onClick={() => setDetail(account)}>
+                    <IconButton
+                      onClick={() => void getAccount(account.id).then(setDetail)}
+                    >
                       <VisibilityOutlined />
                     </IconButton>
                   </Tooltip>
                   <Tooltip title="Editar">
                     <IconButton
-                      onClick={() => {
-                        setEditing(account);
-                        setDialogOpen(true);
-                        save.reset();
-                      }}
+                      onClick={() =>
+                        void getAccount(account.id).then((current) => {
+                          setEditing(current);
+                          setDialogOpen(true);
+                          save.reset();
+                        })
+                      }
                     >
                       <EditOutlined />
                     </IconButton>

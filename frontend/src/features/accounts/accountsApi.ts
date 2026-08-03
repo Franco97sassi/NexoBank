@@ -11,6 +11,10 @@ export async function getAccounts(query: AccountQuery): Promise<AccountPage> {
   return (await httpClient.get<AccountPage>('/api/v1/accounts', { params: query })).data;
 }
 
+export async function getAccount(id: string): Promise<Account> {
+  return (await httpClient.get<Account>(`/api/v1/accounts/${id}`)).data;
+}
+
 export async function createAccount(data: CreateAccountData): Promise<Account> {
   return (await httpClient.post<Account>('/api/v1/accounts', data)).data;
 }

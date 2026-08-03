@@ -15,6 +15,8 @@ import { BeneficiariesPage } from '../pages/BeneficiariesPage';
 import { TransfersPage } from '../pages/TransfersPage';
 import { AuditPage } from '../pages/AuditPage';
 import { FraudAlertsPage } from '../pages/FraudAlertsPage';
+import { LedgerPage } from '../pages/LedgerPage';
+import { ProfilePage } from '../pages/ProfilePage';
 export const router = createBrowserRouter([
   {
     path: '/',
@@ -38,6 +40,8 @@ export const router = createBrowserRouter([
           { path: 'accounts', element: <AccountsPage /> },
           { path: 'transactions', element: <TransactionsPage /> },
           { path: 'transfers', element: <TransfersPage /> },
+          { path: 'ledger', element: <LedgerPage /> },
+          { path: 'profile', element: <ProfilePage /> },
           {
             element: <AdminRoute />,
             children: [
