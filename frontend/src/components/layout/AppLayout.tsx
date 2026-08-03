@@ -5,6 +5,8 @@ import {
   PersonAddAlt,
   FactCheck,
   Policy,
+  MenuBook,
+  AccountCircle,
 } from '@mui/icons-material';
 import { AppBar, Box, Button, Container, Toolbar, Typography } from '@mui/material';
 import { Link, Outlet } from 'react-router-dom';
@@ -35,6 +37,24 @@ export function AppLayout() {
             </Button>
             <Button color="inherit" component={Link} to="/transfers">
               Transferencias
+            </Button>
+            {user?.role !== 'CUSTOMER' && (
+              <Button
+                color="inherit"
+                component={Link}
+                startIcon={<MenuBook />}
+                to="/ledger"
+              >
+                Libro mayor
+              </Button>
+            )}
+            <Button
+              color="inherit"
+              component={Link}
+              startIcon={<AccountCircle />}
+              to="/profile"
+            >
+              Mi perfil
             </Button>
             {user?.role === 'ADMIN' && (
               <>

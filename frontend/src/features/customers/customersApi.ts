@@ -10,6 +10,9 @@ export async function getCustomers(query: CustomerQuery): Promise<CustomerPage> 
   return (await httpClient.get<CustomerPage>('/api/v1/customers', { params: query }))
     .data;
 }
+export async function getCustomer(id: string): Promise<Customer> {
+  return (await httpClient.get<Customer>(`/api/v1/customers/${id}`)).data;
+}
 export async function createCustomer(data: CustomerFormData): Promise<Customer> {
   return (await httpClient.post<Customer>('/api/v1/customers', data)).data;
 }

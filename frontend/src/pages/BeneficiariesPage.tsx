@@ -27,6 +27,7 @@ import { BeneficiaryDialog } from '../features/beneficiaries/BeneficiaryDialog';
 import {
   createBeneficiary,
   deactivateBeneficiary,
+  getBeneficiary,
   getBeneficiaries,
   updateBeneficiary,
 } from '../features/beneficiaries/beneficiariesApi';
@@ -184,11 +185,13 @@ export function BeneficiariesPage() {
                 <TableCell align="right">
                   <Tooltip title="Editar">
                     <IconButton
-                      onClick={() => {
-                        setEditing(b);
-                        save.reset();
-                        setOpen(true);
-                      }}
+                      onClick={() =>
+                        void getBeneficiary(b.id).then((current) => {
+                          setEditing(current);
+                          save.reset();
+                          setOpen(true);
+                        })
+                      }
                     >
                       <EditOutlined />
                     </IconButton>
