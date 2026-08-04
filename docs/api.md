@@ -15,8 +15,8 @@ clientes o importarlo en herramientas de pruebas. La colección Postman versiona
 | Método | Ruta | Propósito |
 | --- | --- | --- |
 | `POST` | `/api/v1/auth/register` | Crear usuario cliente |
-| `POST` | `/api/v1/auth/login` | Obtener access y refresh token |
-| `POST` | `/api/v1/auth/refresh` | Rotar la sesión con el refresh token |
+| `POST` | `/api/v1/auth/login` | Obtener access token y establecer la cookie de renovación |
+| `POST` | `/api/v1/auth/refresh` | Rotar la sesión mediante la cookie HttpOnly |
 | `POST` | `/api/v1/auth/logout` | Revocar el refresh token |
 
 Ejemplo:
@@ -30,8 +30,7 @@ curl -s http://localhost:8080/api/v1/accounts \
   -H "Authorization: Bearer $ACCESS_TOKEN"
 ```
 
-El access token es de vida corta. No envíe el refresh token como bearer: úselo exclusivamente en `refresh` y
-`logout`. Ante `401`, renueve una vez la sesión; ante `403`, el usuario está autenticado pero carece del rol.
+El access token es de vida corta. El refresh token se entrega exclusivamente como cookie `HttpOnly`; no aparece en el JSON ni debe guardarse en `localStorage`. El cliente debe enviar credenciales en `refresh` y `logout`. Ante `401`, renueve una vez la sesión; ante `403`, el usuario está autenticado pero carece del rol.
 
 ## Recursos
 
@@ -86,6 +85,5 @@ No implemente reglas basándose únicamente en el texto del mensaje; use el cód
 
 ## Postman
 
-Importe `docs/postman/NexoBank.postman_collection.json`. La colección define `baseUrl`, `accessToken`,
-`refreshToken` e IDs encadenables. Ejecute primero **Auth / Login**; su script guarda ambos tokens. Los ejemplos de
+Importe `docs/postman/NexoBank.postman_collection.json`. La colección define `baseUrl`, `accessToken` e IDs encadenables. Ejecute primero **Auth / Login**; Postman conserva automáticamente la cookie y el script guarda el access token. Los ejemplos de
 creación guardan los IDs de la respuesta y `Create transfer` genera una clave idempotente con `$guid`.

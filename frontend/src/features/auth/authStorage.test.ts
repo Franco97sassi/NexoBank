@@ -3,14 +3,13 @@ import { describe, expect, it, vi } from 'vitest';
 import {
   clearAuthSession,
   getAccessToken,
-  getRefreshToken,
   getSessionExpiresAt,
   getStoredUser,
   saveAuthSession,
 } from './authStorage';
 
 describe('authStorage', () => {
-  it('persists and restores a complete session', () => {
+  it('persists the short-lived access session without a refresh token', () => {
     vi.spyOn(Date, 'now').mockReturnValue(1_000);
     const user = {
       id: 'user-13',
@@ -21,23 +20,24 @@ describe('authStorage', () => {
 
     saveAuthSession({
       accessToken: 'access',
-      refreshToken: 'refresh',
       tokenType: 'Bearer',
       expiresInSeconds: 60,
       user,
     });
 
     expect(getAccessToken()).toBe('access');
-    expect(getRefreshToken()).toBe('refresh');
     expect(getStoredUser()).toEqual(user);
     expect(getSessionExpiresAt()).toBe(61_000);
+    expect(localStorage.getItem('nexobank.refreshToken')).toBeNull();
   });
 
-  it('removes every session value on logout', () => {
+  it('removes every browser-managed session value on logout', () => {
     localStorage.setItem('nexobank.accessToken', 'access');
-    localStorage.setItem('nexobank.refreshToken', 'refresh');
+    localStorage.setItem('nexobank.user', '{}');
+    localStorage.setItem('nexobank.expiresAt', '1000');
     clearAuthSession();
     expect(getAccessToken()).toBeNull();
-    expect(getRefreshToken()).toBeNull();
+    expect(getStoredUser()).toBeNull();
+    expect(getSessionExpiresAt()).toBeNull();
   });
 });

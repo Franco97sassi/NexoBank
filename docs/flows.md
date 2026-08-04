@@ -28,11 +28,11 @@ sequenceDiagram
     W->>A: POST /auth/login
     A->>DB: valida usuario y hash
     A->>DB: persiste refresh token
-    A-->>W: access token + refresh token
+    A-->>W: access token + cookie HttpOnly
     W->>A: request + Bearer access token
     A-->>W: recurso protegido
     Note over W,A: al vencer el access token
-    W->>A: POST /auth/refresh
+    W->>A: POST /auth/refresh + cookie HttpOnly
     A->>DB: valida y rota refresh token
     A-->>W: nueva sesión
 ```

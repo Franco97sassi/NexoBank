@@ -30,13 +30,7 @@ export type AccountQuery = {
   page: number;
   size: number;
   sortBy:
-    | 'cbu'
-    | 'alias'
-    | 'currency'
-    | 'accountType'
-    | 'status'
-    | 'balance'
-    | 'createdAt';
+    'cbu' | 'alias' | 'currency' | 'accountType' | 'status' | 'balance' | 'createdAt';
   direction: 'ASC' | 'DESC';
 };
 
