@@ -56,8 +56,8 @@ tablas, restricciones y relaciones.
 ## Seguridad
 
 1. Spring Security valida credenciales con un hash de contraseña.
-2. El login emite un JWT de acceso corto y un refresh token persistido.
-3. La SPA guarda la sesión, adjunta el access token y usa `/auth/refresh` cuando corresponde.
+2. El login emite un JWT de acceso corto y un refresh token rotatorio, persistido como hash y entregado en cookie HttpOnly.
+3. La SPA guarda solo el access token, lo adjunta a cada solicitud y usa la cookie HttpOnly en `/auth/refresh`.
 4. El backend valida firma, emisor y expiración antes de construir la identidad autenticada.
 5. Las reglas por rol se aplican en la cadena de seguridad y con `@PreAuthorize` en operaciones administrativas.
 6. CORS solo acepta los orígenes declarados en `CORS_ALLOWED_ORIGINS`.

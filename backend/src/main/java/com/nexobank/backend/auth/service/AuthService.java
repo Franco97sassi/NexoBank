@@ -39,8 +39,6 @@ public class AuthService {
 
     @Transactional
     public AuthResponse register(RegisterRequest request) {
-        System.out.println("REGISTRO RECIBIDO: " + request.email());
-
         String email = request.email().trim().toLowerCase();
 
         if (userRepository.existsByEmailIgnoreCase(email)) {
@@ -52,9 +50,6 @@ public class AuthService {
                 passwordEncoder.encode(request.password()),
                 Role.CUSTOMER
         ));
-
-        System.out.println("USUARIO GUARDADO: " + user.getId());
-        System.out.println("EMAIL GUARDADO: " + user.getEmail());
 
         return buildAuthResponse(user);
     }

@@ -32,19 +32,11 @@ describe('LoginPage', () => {
   it('submits the credentials entered by the user', async () => {
     const login = renderLogin();
 
-    await userEvent.type(
-      screen.getByLabelText(/email/i),
-      'ada@nexobank.test',
-    );
+    await userEvent.type(screen.getByLabelText(/email/i), 'ada@nexobank.test');
 
-    await userEvent.type(
-      screen.getByLabelText(/contraseña/i),
-      'secret-13',
-    );
+    await userEvent.type(screen.getByLabelText(/contraseña/i), 'secret-13');
 
-    await userEvent.click(
-      screen.getByRole('button', { name: /ingresar/i }),
-    );
+    await userEvent.click(screen.getByRole('button', { name: /ingresar/i }));
 
     expect(login).toHaveBeenCalledWith({
       email: 'ada@nexobank.test',
@@ -55,19 +47,11 @@ describe('LoginPage', () => {
   it('shows a useful message when authentication fails', async () => {
     renderLogin(vi.fn().mockRejectedValue(new Error('unauthorized')));
 
-    await userEvent.type(
-      screen.getByLabelText(/email/i),
-      'ada@nexobank.test',
-    );
+    await userEvent.type(screen.getByLabelText(/email/i), 'ada@nexobank.test');
 
-    await userEvent.type(
-      screen.getByLabelText(/contraseña/i),
-      'wrong-password',
-    );
+    await userEvent.type(screen.getByLabelText(/contraseña/i), 'wrong-password');
 
-    await userEvent.click(
-      screen.getByRole('button', { name: /ingresar/i }),
-    );
+    await userEvent.click(screen.getByRole('button', { name: /ingresar/i }));
 
     expect(await screen.findByRole('alert')).toHaveTextContent(
       'No se pudo iniciar sesión',

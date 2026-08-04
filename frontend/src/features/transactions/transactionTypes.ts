@@ -1,9 +1,5 @@
 export type TransactionType =
-  | 'DEPOSIT'
-  | 'WITHDRAWAL'
-  | 'ADJUSTMENT'
-  | 'TRANSFER_IN'
-  | 'TRANSFER_OUT';
+  'DEPOSIT' | 'WITHDRAWAL' | 'ADJUSTMENT' | 'TRANSFER_IN' | 'TRANSFER_OUT';
 export interface Transaction {
   id: string;
   accountId: string;

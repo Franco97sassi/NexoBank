@@ -10,7 +10,7 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'html', 'lcov'],
-      include: ['src/features/auth/authStorage.ts', 'src/pages/LoginPage.tsx'],
+      include: ['src/features/auth/{authApi,authStorage}.ts', 'src/pages/LoginPage.tsx'],
       exclude: ['src/main.tsx', 'src/**/*.d.ts', 'src/test/**'],
       thresholds: { lines: 60, functions: 60, statements: 60, branches: 50 },
     },

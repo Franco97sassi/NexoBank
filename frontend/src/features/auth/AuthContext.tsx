@@ -4,7 +4,6 @@ import {
   AUTH_SESSION_CHANGED_EVENT,
   clearAuthSession,
   getAccessToken,
-  getRefreshToken,
   getSessionExpiresAt,
   getStoredUser,
   saveAuthSession,
@@ -50,13 +49,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const expiresAt = getSessionExpiresAt();
     if (!expiresAt) return;
     const refreshOrLogout = async () => {
-      const refreshToken = getRefreshToken();
-      if (!refreshToken) {
-        clearAuthSession();
-        return;
-      }
       try {
-        saveAuthSession(await refreshSession(refreshToken));
+        saveAuthSession(await refreshSession());
       } catch {
         clearAuthSession();
       }
@@ -89,13 +83,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 
   const logout = useCallback(async () => {
-    const refreshToken = getRefreshToken();
     clearAuthSession();
     setUser(null);
     setAccessToken(null);
-    if (refreshToken) {
-      await logoutRequest(refreshToken);
-    }
+    await logoutRequest();
   }, []);
 
   const value = useMemo<AuthContextValue>(

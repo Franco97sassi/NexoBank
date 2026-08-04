@@ -11,13 +11,11 @@ export async function register(request: RegisterRequest): Promise<AuthResponse> 
   return response.data;
 }
 
-export async function refreshSession(refreshToken: string): Promise<AuthResponse> {
-  const response = await httpClient.post<AuthResponse>('/api/v1/auth/refresh', {
-    refreshToken,
-  });
+export async function refreshSession(): Promise<AuthResponse> {
+  const response = await httpClient.post<AuthResponse>('/api/v1/auth/refresh');
   return response.data;
 }
 
-export async function logout(refreshToken: string): Promise<void> {
-  await httpClient.post('/api/v1/auth/logout', { refreshToken });
+export async function logout(): Promise<void> {
+  await httpClient.post('/api/v1/auth/logout');
 }

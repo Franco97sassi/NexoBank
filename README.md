@@ -1,65 +1,94 @@
 # NexoBank
 
-NexoBank es una plataforma bancaria full stack para administrar usuarios, clientes, cuentas, movimientos,
-destinatarios y transferencias. Incluye autenticación con JWT y refresh tokens, comprobantes, auditoría,
-alertas de fraude y paneles diferenciados para clientes y administradores.
+Plataforma bancaria full stack que modela la administración de clientes, cuentas, movimientos y transferencias con foco en **consistencia monetaria, seguridad y trazabilidad**. Incluye autenticación JWT, refresh token en cookie HttpOnly, autorización por roles, transferencias idempotentes, ledger de doble entrada, auditoría y alertas de fraude.
 
-## Tecnologías
+[▶ Ver video demostrativo](https://drive.google.com/file/d/1JFGAoxfQuZV8G1chXaDHK8XVBlAx3nEw/view?usp=sharing) · [Arquitectura](docs/architecture.md) · [API](docs/api.md) · [Colección Postman](docs/postman/NexoBank.postman_collection.json)
+
+> **Proyecto demostrativo:** NexoBank no es una entidad financiera ni procesa dinero real. Las credenciales y valores predeterminados son exclusivamente para desarrollo local.
+
+![Vista de cuentas de NexoBank](docs/screenshots/cuentas.png)
+
+## Funcionalidades
+
+- Gestión de usuarios, clientes, cuentas y destinatarios.
+- Depósitos, retiros, ajustes y consulta paginada de movimientos.
+- Transferencias idempotentes con validación de saldo, moneda y estado de cuentas.
+- Ledger de doble entrada con débitos y créditos balanceados por asiento.
+- Comprobantes, auditoría con contexto de solicitud y revisión de alertas de fraude.
+- Sesiones con access token de corta duración y refresh token rotatorio en cookie HttpOnly.
+- Rate limiting configurable para registro, login y renovación de sesión.
+- Métricas, health checks e integración con Prometheus mediante Spring Boot Actuator.
+- Panel administrativo responsive y contrato OpenAPI interactivo.
+
+## Recorrido visual
+
+| Clientes | Usuarios |
+| --- | --- |
+| ![Gestión de clientes](docs/screenshots/clientes.png) | ![Gestión de usuarios](docs/screenshots/usuarios.png) |
+| **Movimientos** | **Transferencias** |
+| ![Movimientos bancarios](docs/screenshots/movimientos.png) | ![Transferencias](docs/screenshots/transferencias.png) |
+| **Destinatarios** | **Fraude** |
+| ![Destinatarios](docs/screenshots/destinatarios.png) | ![Alertas de fraude](docs/screenshots/fraude.png) |
+| **Auditoría** | **Cuentas** |
+| ![Auditoría](docs/screenshots/auditoria.png) | ![Cuentas](docs/screenshots/cuentas.png) |
+
+## Stack
 
 | Capa | Tecnologías |
 | --- | --- |
-| Backend | Java 21, Spring Boot, Spring Security, Spring Data JPA, Flyway, springdoc-openapi |
-| Frontend | React, TypeScript, Vite, TanStack Query, Material UI |
-| Datos | PostgreSQL 17 |
-| Calidad | JUnit, H2, JaCoCo, Vitest, Testing Library, Playwright, ESLint, Prettier |
-| Infraestructura | Docker y Docker Compose |
+| Backend | Java 21, Spring Boot 4, Spring Security, Spring Data JPA, Flyway |
+| Frontend | React 19, TypeScript, Vite, TanStack Query, Material UI |
+| Datos | PostgreSQL 17, H2 para tests |
+| Calidad | JUnit, JaCoCo, Vitest, Testing Library, Playwright, ESLint, Prettier |
+| Operación | Docker Compose, GitHub Actions, Actuator, Micrometer, Prometheus |
 
-## Requisitos
+## Decisiones técnicas destacadas
 
-- Docker Engine con Docker Compose v2, para ejecutar toda la solución; o
-- Java 21, Node.js 20 o superior y PostgreSQL 17, para desarrollo sin contenedores.
+- **Monolito modular:** mantiene límites claros por dominio sin la complejidad operativa de microservicios.
+- **Dinero con `BigDecimal`:** PostgreSQL usa `NUMERIC(19,2)` y restricciones de integridad.
+- **Consistencia:** las operaciones monetarias y sus asientos se confirman en una única transacción.
+- **Concurrencia:** las cuentas usan bloqueo optimista y las claves de idempotencia son únicas.
+- **Esquema versionado:** Flyway administra migraciones; Hibernate solo valida el mapeo.
+- **Sesión segura:** el navegador no puede leer el refresh token; el access token expira en 15 minutos por defecto.
 
-## Inicio rápido con Docker
+La explicación completa está en [`docs/architecture.md`](docs/architecture.md) y los flujos en [`docs/flows.md`](docs/flows.md).
+
+## Inicio rápido
+
+### Requisitos
+
+- Docker Engine y Docker Compose v2.
 
 ```bash
-git clone <url-del-repositorio>
+git clone <URL-DEL-REPOSITORIO>
 cd NexoBank
+cp .env.example .env
 docker compose up --build
 ```
 
-Opcionalmente copie `.env.example` a `.env` antes de iniciar para personalizar los puertos y credenciales del
-entorno local. Compose también funciona directamente con los valores de desarrollo predeterminados.
+Servicios disponibles:
 
-Cuando los servicios estén listos:
+| Servicio | URL |
+| --- | --- |
+| Aplicación web | <http://localhost:5173> |
+| API | <http://localhost:8080/api/v1> |
+| Swagger UI | <http://localhost:8080/swagger-ui.html> |
+| OpenAPI | <http://localhost:8080/api-docs> |
+| Health | <http://localhost:8080/actuator/health> |
+| Métricas Prometheus | <http://localhost:8080/actuator/prometheus> |
+| PostgreSQL | `localhost:5434` |
 
-- aplicación web: <http://localhost:5173>
-- API: <http://localhost:8080/api>
-- Swagger UI: <http://localhost:8080/swagger-ui.html>
-- especificación OpenAPI: <http://localhost:8080/api-docs>
-- estado del backend: <http://localhost:8080/api/health>
-- PostgreSQL: `localhost:5434` (base `nexobank`)
+Para detener el entorno: `docker compose down`. Use `docker compose down -v` para eliminar también los datos.
 
-Para detener la solución use `docker compose down`. Agregue `-v` si también desea eliminar los datos locales.
-
-> Los valores de `docker-compose.yml` son exclusivamente de desarrollo. Nunca use esas credenciales ni el
-> secreto JWT predeterminado en producción.
-
-## Desarrollo local
+## Desarrollo sin contenedores
 
 ### Backend
 
-1. Inicie PostgreSQL con `docker compose up -d postgres`.
-2. Ajuste `DB_URL` si es necesario; el perfil `dev` usa por defecto
-   `jdbc:postgresql://localhost:5433/nexobank`, mientras que Compose publica PostgreSQL en el puerto `5434`.
-3. Ejecute:
-
 ```bash
+docker compose up -d postgres
 cd backend
 DB_URL=jdbc:postgresql://localhost:5434/nexobank ./mvnw spring-boot:run
 ```
-
-Flyway crea y actualiza el esquema automáticamente. La configuración común está en
-`application.properties` y los valores locales en `application-dev.properties`.
 
 ### Frontend
 
@@ -70,63 +99,77 @@ npm ci
 npm run dev
 ```
 
-`VITE_API_BASE_URL` debe apuntar al backend y vale `http://localhost:8080` en el ejemplo.
+`VITE_API_BASE_URL` debe apuntar al backend. Las solicitudes incluyen credenciales para que el navegador envíe la cookie HttpOnly únicamente a los endpoints de autenticación.
 
-## Uso de la API
+## Seguridad
 
-Las rutas de negocio usan el prefijo `/api/v1`. Registre un usuario o inicie sesión en
-`/api/v1/auth`, copie `accessToken` y envíelo como `Authorization: Bearer <token>` en las rutas protegidas.
-Los permisos dependen del rol (`CUSTOMER`, `EMPLOYEE` o `ADMIN`).
+- BCrypt para contraseñas y Spring Security stateless.
+- Access token JWT de corta duración; el refresh token no se expone en el JSON ni se guarda en `localStorage`.
+- Refresh token rotatorio, persistido como hash y enviado en cookie `HttpOnly`, `SameSite=Strict` y `Secure` en producción.
+- CORS limitado a `CORS_ALLOWED_ORIGINS`.
+- Rate limit por IP y endpoint en login, registro y refresh; responde `429` y `Retry-After` al superar el límite.
+- Errores inesperados sin detalles internos y eventos sensibles auditados.
 
-La colección [`docs/postman/NexoBank.postman_collection.json`](docs/postman/NexoBank.postman_collection.json)
-incluye ejemplos y guarda automáticamente los tokens y los identificadores creados. También puede explorar y
-ejecutar cada operación desde Swagger UI. Consulte la [guía de API](docs/api.md) para conocer el flujo recomendado.
+En producción configure `SPRING_PROFILES_ACTIVE=prod`, `REFRESH_COOKIE_SECURE=true`, secretos aleatorios, HTTPS y un almacén de secretos. El rate limiter en memoria es apropiado para esta demo de una instancia; un despliegue distribuido debería reemplazarlo por Redis o el gateway de entrada.
 
-## Pruebas y controles
+## Observabilidad
+
+Actuator publica health, información, métricas y formato Prometheus. Las métricas incluyen la etiqueta `application=backend`. En producción, `/actuator/prometheus` debe quedar accesible únicamente desde la red de monitoreo.
+
+Variables relevantes:
+
+| Variable | Predeterminado local | Propósito |
+| --- | --- | --- |
+| `AUTH_RATE_LIMIT_REQUESTS` | `10` | Intentos permitidos por ventana, IP y endpoint |
+| `AUTH_RATE_LIMIT_WINDOW_SECONDS` | `60` | Duración de la ventana |
+| `REFRESH_COOKIE_SECURE` | `false` | Exigir HTTPS para la cookie de renovación |
+| `LOG_LEVEL_NEXOBANK` | `INFO` | Nivel de logs de la aplicación |
+
+## Pruebas y calidad
 
 ```bash
 # Backend
 cd backend
-./mvnw test
 ./mvnw verify
 
 # Frontend
 cd ../frontend
 npm ci
-npm test
+npm run test:coverage
 npm run lint
+npm run format
 npm run build
 npm run test:e2e
+
+# Contenedores
+docker compose --env-file .env.example config --quiet
+docker compose --env-file .env.example build
 ```
 
-El informe JaCoCo se genera en `backend/target/site/jacoco/index.html`. La cobertura frontend se obtiene con
-`npm run test:coverage`. Playwright puede requerir instalar Chromium previamente con
-`npx playwright install chromium`.
+GitHub Actions ejecuta estas verificaciones en cada push o pull request y publica los reportes como artefactos, sin versionar cobertura ni caches generadas.
 
 ## Documentación
 
 - [Arquitectura y decisiones](docs/architecture.md)
 - [Modelo de datos y DER](docs/data-model.md)
-- [Diagramas de arquitectura y flujos](docs/flows.md)
-- [API, autenticación y Swagger](docs/api.md)
+- [Flujos de autenticación, transferencias y auditoría](docs/flows.md)
+- [API y Swagger](docs/api.md)
 - [Colección Postman](docs/postman/NexoBank.postman_collection.json)
 - [Estrategia de pruebas](docs/testing.md)
-- [DevOps para el entorno local](docs/devops.md)
+- [DevOps local](docs/devops.md)
 - [Convenciones de código](docs/code-conventions.md)
 
 ## Estructura
 
 ```text
 NexoBank/
-├── backend/                 # API REST, dominio, seguridad y migraciones
-├── frontend/                # SPA React
-├── docs/                    # Documentación técnica y artefactos de API
-├── docker-compose.yml       # Entorno local completo
+├── backend/                 # API, dominio, seguridad y migraciones
+├── frontend/                # SPA React y pruebas frontend/E2E
+├── docs/                    # Arquitectura, API, diagramas y capturas
+├── docker-compose.yml       # Entorno local reproducible
 └── README.md
 ```
 
-## Configuración sensible
+## Licencia
 
-En producción active `SPRING_PROFILES_ACTIVE=prod` y defina, como mínimo, `DB_URL`, `DB_USERNAME`,
-`DB_PASSWORD`, `JWT_SECRET` (aleatorio y de al menos 32 bytes) y `CORS_ALLOWED_ORIGINS`. Los secretos no deben
-versionarse; inyéctelos mediante el gestor de secretos de la plataforma de despliegue.
+Distribuido bajo la [licencia MIT](LICENSE).

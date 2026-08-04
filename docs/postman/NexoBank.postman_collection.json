@@ -104,8 +104,7 @@
                 "exec": [
                   "pm.test('Login exitoso', () => pm.response.to.have.status(200));",
                   "const data = pm.response.json();",
-                  "pm.collectionVariables.set('accessToken', data.accessToken);",
-                  "pm.collectionVariables.set('refreshToken', data.refreshToken);"
+                  "pm.collectionVariables.set('accessToken', data.accessToken);"
                 ]
               }
             }
@@ -132,15 +131,6 @@
                 "auth",
                 "refresh"
               ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
             }
           },
           "event": [
@@ -151,8 +141,7 @@
                 "exec": [
                   "pm.test('Login exitoso', () => pm.response.to.have.status(200));",
                   "const data = pm.response.json();",
-                  "pm.collectionVariables.set('accessToken', data.accessToken);",
-                  "pm.collectionVariables.set('refreshToken', data.refreshToken);"
+                  "pm.collectionVariables.set('accessToken', data.accessToken);"
                 ]
               }
             }
@@ -179,15 +168,6 @@
                 "auth",
                 "logout"
               ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
             }
           }
         }
@@ -941,10 +921,6 @@
     },
     {
       "key": "accessToken",
-      "value": ""
-    },
-    {
-      "key": "refreshToken",
       "value": ""
     },
     {

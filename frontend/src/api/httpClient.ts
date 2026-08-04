@@ -3,7 +3,6 @@ import type { AuthResponse } from '../features/auth/authTypes';
 import {
   clearAuthSession,
   getAccessToken,
-  getRefreshToken,
   saveAuthSession,
 } from '../features/auth/authStorage';
 
@@ -16,6 +15,7 @@ export const httpClient = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true,
 });
 httpClient.interceptors.request.use((config) => {
   const accessToken = getAccessToken();
@@ -29,16 +29,9 @@ httpClient.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
     const request = error.config as RetryableRequest | undefined;
-    const refreshToken = getRefreshToken();
     const isAuthRequest = request?.url?.startsWith('/api/v1/auth/');
 
-    if (
-      error.response?.status !== 401 ||
-      !request ||
-      request._retry ||
-      !refreshToken ||
-      isAuthRequest
-    ) {
+    if (error.response?.status !== 401 || !request || request._retry || isAuthRequest) {
       if (error.response?.status === 401 && !isAuthRequest) {
         clearAuthSession();
       }
@@ -48,7 +41,9 @@ httpClient.interceptors.response.use(
     request._retry = true;
     try {
       refreshRequest ??= axios
-        .post<AuthResponse>(`${apiBaseUrl}/api/v1/auth/refresh`, { refreshToken })
+        .post<AuthResponse>(`${apiBaseUrl}/api/v1/auth/refresh`, undefined, {
+          withCredentials: true,
+        })
         .then((response) => response.data)
         .finally(() => {
           refreshRequest = null;
