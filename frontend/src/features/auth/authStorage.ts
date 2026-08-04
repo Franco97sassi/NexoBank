@@ -1,34 +1,43 @@
 import type { AuthResponse } from './authTypes';
 
-const ACCESS_TOKEN_KEY = 'nexobank.accessToken';
-const USER_KEY = 'nexobank.user';
-const EXPIRES_AT_KEY = 'nexobank.expiresAt';
+const LEGACY_SESSION_KEYS = [
+  'nexobank.accessToken',
+  'nexobank.user',
+  'nexobank.expiresAt',
+];
+
+let accessToken: string | null = null;
+let user: AuthResponse['user'] | null = null;
+let expiresAt: number | null = null;
 
 export const AUTH_SESSION_CHANGED_EVENT = 'nexobank:auth-session-changed';
 
 export function saveAuthSession(auth: AuthResponse) {
-  localStorage.setItem(ACCESS_TOKEN_KEY, auth.accessToken);
-  localStorage.setItem(USER_KEY, JSON.stringify(auth.user));
-  localStorage.setItem(EXPIRES_AT_KEY, String(Date.now() + auth.expiresInSeconds * 1000));
+  accessToken = auth.accessToken;
+  user = auth.user;
+  expiresAt = Date.now() + auth.expiresInSeconds * 1000;
   window.dispatchEvent(new Event(AUTH_SESSION_CHANGED_EVENT));
 }
 
 export function clearAuthSession() {
-  localStorage.removeItem(ACCESS_TOKEN_KEY);
-  localStorage.removeItem(USER_KEY);
-  localStorage.removeItem(EXPIRES_AT_KEY);
+  accessToken = null;
+  user = null;
+  expiresAt = null;
+  LEGACY_SESSION_KEYS.forEach((key) => localStorage.removeItem(key));
   window.dispatchEvent(new Event(AUTH_SESSION_CHANGED_EVENT));
 }
 
 export function getAccessToken() {
-  return localStorage.getItem(ACCESS_TOKEN_KEY);
+  return accessToken;
 }
 
 export function getStoredUser() {
-  const storedUser = localStorage.getItem(USER_KEY);
-  return storedUser ? JSON.parse(storedUser) : null;
+  return user;
 }
 export function getSessionExpiresAt() {
-  const value = localStorage.getItem(EXPIRES_AT_KEY);
-  return value ? Number(value) : null;
+  return expiresAt;
 }
+
+// Remove sessions created by older versions. The refresh cookie is HttpOnly and
+// is the only credential intentionally persisted across page reloads.
+LEGACY_SESSION_KEYS.forEach((key) => localStorage.removeItem(key));

@@ -49,7 +49,7 @@ Plataforma bancaria full stack que modela la administración de clientes, cuenta
 - **Consistencia:** las operaciones monetarias y sus asientos se confirman en una única transacción.
 - **Concurrencia:** las cuentas usan bloqueo optimista y las claves de idempotencia son únicas.
 - **Esquema versionado:** Flyway administra migraciones; Hibernate solo valida el mapeo.
-- **Sesión segura:** el navegador no puede leer el refresh token; el access token expira en 15 minutos por defecto.
+- **Sesión segura:** el navegador no puede leer el refresh token; el access token se conserva solo en memoria y expira en 15 minutos por defecto.
 
 La explicación completa está en [`docs/architecture.md`](docs/architecture.md) y los flujos en [`docs/flows.md`](docs/flows.md).
 
@@ -104,7 +104,7 @@ npm run dev
 ## Seguridad
 
 - BCrypt para contraseñas y Spring Security stateless.
-- Access token JWT de corta duración; el refresh token no se expone en el JSON ni se guarda en `localStorage`.
+- Access token JWT de corta duración conservado solo en memoria; ninguna credencial se guarda en `localStorage` y el refresh token no se expone en el JSON.
 - Refresh token rotatorio, persistido como hash y enviado en cookie `HttpOnly`, `SameSite=Strict` y `Secure` en producción.
 - CORS limitado a `CORS_ALLOWED_ORIGINS`.
 - Rate limit por IP y endpoint en login, registro y refresh; responde `429` y `Retry-After` al superar el límite.
