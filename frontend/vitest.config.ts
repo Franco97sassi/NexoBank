@@ -10,9 +10,18 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'html', 'lcov'],
-      include: ['src/features/auth/{authApi,authStorage}.ts', 'src/pages/LoginPage.tsx'],
-      exclude: ['src/main.tsx', 'src/**/*.d.ts', 'src/test/**'],
-      thresholds: { lines: 60, functions: 60, statements: 60, branches: 50 },
+      include: ['src/**/*.{ts,tsx}'],
+      exclude: [
+        'src/main.tsx',
+        'src/**/*.d.ts',
+        'src/**/*Types.ts',
+        'src/test/**',
+        'src/vite-env.d.ts',
+      ],
+      // Initial whole-application baseline. Raise these values as coverage is
+      // added; unlike the previous auth-only scope, regressions anywhere in src
+      // now affect the global result.
+      thresholds: { lines: 5, functions: 25, statements: 5, branches: 45 },
     },
   },
 });

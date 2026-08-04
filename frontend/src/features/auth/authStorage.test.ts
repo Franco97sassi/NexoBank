@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import {
   clearAuthSession,
@@ -9,7 +9,12 @@ import {
 } from './authStorage';
 
 describe('authStorage', () => {
-  it('persists the short-lived access session without a refresh token', () => {
+  afterEach(() => {
+    clearAuthSession();
+    vi.restoreAllMocks();
+  });
+
+  it('keeps the short-lived access session only in memory', () => {
     vi.spyOn(Date, 'now').mockReturnValue(1_000);
     const user = {
       id: 'user-13',
@@ -28,10 +33,13 @@ describe('authStorage', () => {
     expect(getAccessToken()).toBe('access');
     expect(getStoredUser()).toEqual(user);
     expect(getSessionExpiresAt()).toBe(61_000);
+    expect(localStorage.getItem('nexobank.accessToken')).toBeNull();
+    expect(localStorage.getItem('nexobank.user')).toBeNull();
+    expect(localStorage.getItem('nexobank.expiresAt')).toBeNull();
     expect(localStorage.getItem('nexobank.refreshToken')).toBeNull();
   });
 
-  it('removes every browser-managed session value on logout', () => {
+  it('clears memory and removes values left by older versions', () => {
     localStorage.setItem('nexobank.accessToken', 'access');
     localStorage.setItem('nexobank.user', '{}');
     localStorage.setItem('nexobank.expiresAt', '1000');

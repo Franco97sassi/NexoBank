@@ -20,6 +20,7 @@ export type AuthContextValue = {
   user: AuthUser | null;
   accessToken: string | null;
   isAuthenticated: boolean;
+  isInitializing: boolean;
   login: (request: LoginRequest) => Promise<void>;
   register: (request: RegisterRequest) => Promise<void>;
   logout: () => Promise<void>;
@@ -28,19 +29,47 @@ export type AuthContextValue = {
 // eslint-disable-next-line react-refresh/only-export-components
 export const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
+let sessionRestoreRequest: Promise<AuthResponse> | null = null;
+
+function restoreSession() {
+  sessionRestoreRequest ??= refreshSession().finally(() => {
+    sessionRestoreRequest = null;
+  });
+  return sessionRestoreRequest;
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(() => getStoredUser());
   const [accessToken, setAccessToken] = useState<string | null>(() => getAccessToken());
+  const [isInitializing, setIsInitializing] = useState(true);
   useEffect(() => {
     const synchronizeSession = () => {
       setUser(getStoredUser());
       setAccessToken(getAccessToken());
     };
     window.addEventListener(AUTH_SESSION_CHANGED_EVENT, synchronizeSession);
-    window.addEventListener('storage', synchronizeSession);
     return () => {
       window.removeEventListener(AUTH_SESSION_CHANGED_EVENT, synchronizeSession);
-      window.removeEventListener('storage', synchronizeSession);
+    };
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+    restoreSession()
+      .then((auth) => {
+        if (!active) return;
+        saveAuthSession(auth);
+        setUser(auth.user);
+        setAccessToken(auth.accessToken);
+      })
+      .catch(() => {
+        if (active) clearAuthSession();
+      })
+      .finally(() => {
+        if (active) setIsInitializing(false);
+      });
+    return () => {
+      active = false;
     };
   }, []);
 
@@ -94,11 +123,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       user,
       accessToken,
       isAuthenticated: Boolean(user && accessToken),
+      isInitializing,
       login,
       register,
       logout,
     }),
-    [accessToken, login, logout, register, user],
+    [accessToken, isInitializing, login, logout, register, user],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

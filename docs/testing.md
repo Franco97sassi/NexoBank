@@ -11,7 +11,7 @@ La fase 13 organiza la pirámide de pruebas en dos suites independientes.
 ## Frontend
 
 - `npm test` ejecuta pruebas unitarias y de componentes con Vitest, Testing Library y jsdom.
-- `npm run test:coverage` genera informes de cobertura de texto, HTML y LCOV, y exige umbrales mínimos.
+- `npm run test:coverage` genera informes de cobertura de texto, HTML y LCOV para todo `src`, y exige umbrales globales mínimos. El umbral inicial refleja la cobertura real de toda la aplicación y debe incrementarse al incorporar pruebas.
 - `npm run test:e2e` ejecuta el flujo crítico de autenticación con Playwright en Chromium.
 
 Los tests no comparten estado: cada prueba limpia el DOM y `localStorage`. En CI se recomienda ejecutar
