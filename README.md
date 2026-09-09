@@ -1,5 +1,8 @@
 # NexoBank
 
+[![CI](https://github.com/Franco97sassi/NexoBank/actions/workflows/ci.yml/badge.svg)](https://github.com/Franco97sassi/NexoBank/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 Plataforma bancaria full stack que modela la administración de clientes, cuentas, movimientos y transferencias con foco en **consistencia monetaria, seguridad y trazabilidad**. Incluye autenticación JWT, refresh token en cookie HttpOnly, autorización por roles, transferencias idempotentes, ledger de doble entrada, auditoría y alertas de fraude.
 
 [▶ Ver video demostrativo](https://drive.google.com/file/d/1JFGAoxfQuZV8G1chXaDHK8XVBlAx3nEw/view?usp=sharing) · [Arquitectura](docs/architecture.md) · [API](docs/api.md) · [Colección Postman](docs/postman/NexoBank.postman_collection.json)
@@ -60,7 +63,7 @@ La explicación completa está en [`docs/architecture.md`](docs/architecture.md)
 - Docker Engine y Docker Compose v2.
 
 ```bash
-git clone <URL-DEL-REPOSITORIO>
+git clone https://github.com/Franco97sassi/NexoBank.git
 cd NexoBank
 cp .env.example .env
 docker compose up --build
@@ -147,6 +150,19 @@ docker compose --env-file .env.example build
 ```
 
 GitHub Actions ejecuta estas verificaciones en cada push o pull request y publica los reportes como artefactos, sin versionar cobertura ni caches generadas.
+
+## Alcance y evolución
+
+NexoBank prioriza profundidad en las invariantes bancarias sobre cantidad de funcionalidades. Es un proyecto de portfolio, no un sistema certificado para operar dinero real. Antes de un uso productivo se requerirían, entre otros controles, gestión externa de secretos, TLS de extremo a extremo, alta disponibilidad, recuperación ante desastres, pruebas de carga y concurrencia sostenidas, conciliación operativa y una revisión de seguridad independiente.
+
+Próximas mejoras, ordenadas por impacto técnico:
+
+1. Pruebas de integración contra PostgreSQL real con Testcontainers y escenarios concurrentes.
+2. Mayor cobertura de los flujos críticos del frontend y pruebas E2E de transferencias.
+3. Rate limiting distribuido y protección de métricas mediante una red de observabilidad.
+4. Despliegue reproducible con HTTPS, secretos administrados, backups y alertas.
+
+Esta delimitación hace explícitas las decisiones y evita presentar como productivo lo que está diseñado como una demostración técnica.
 
 ## Documentación
 
